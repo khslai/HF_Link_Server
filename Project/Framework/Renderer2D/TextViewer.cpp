@@ -38,11 +38,9 @@ void TextViewer::Draw()
 {
 	//テキストを中央寄せで表示するためのRectを計算
 	LONG left = posX - text.length() * fontSize / 2;
-	//LONG top =  posY - fontSize / 2;
-	LONG top =  posY - fontSize;
+	LONG top =  posY - fontSize / 2;
 	LONG right = left + text.length() * fontSize;
-	//LONG bottom = top + fontSize;
-	LONG bottom = top + fontSize * 2;
+	LONG bottom = top + fontSize;
 
 	//描画
 	RECT rect = { left, top, right, bottom};

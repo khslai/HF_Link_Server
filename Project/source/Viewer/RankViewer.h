@@ -1,11 +1,11 @@
 //=============================================================================
 //
-// UDPサーバー描画クラス [UDPServerViewer.h]
+// ランキング描画クラス [RankViewer.cpp]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#ifndef _UDPServerViewer_H_
-#define _UDPServerViewer_H_
+#ifndef _RankViewer_H_
+#define _RankViewer_H_
 
 #include <string>
 #include <vector>
@@ -13,31 +13,33 @@
 using namespace std;
 
 class TextViewer;
-
-typedef struct DrawViewer
-{
-	TextViewer* Text;
-	sockaddr_in Address;
-}DrawViewer;
+class TextureDrawer;
 
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
-class UDPServerViewer
+class RankViewer
 {
 private:
-	int ConnectedNum;
-	TextViewer *TitleText;
-	std::vector<DrawViewer> DrawList;
+	int AILevel;
+	string AILevelStr;
+	D3DXVECTOR3 CenterPos;
+	D3DXVECTOR3 AILevelBasePos;
+	std::vector<int> SplitedInt;
+
+	TextViewer *PlayerName;
+	TextureDrawer *AILevelDrawer;
+
+	void SetDrawPosition(void);
+	void SplitAILevel(void);
 
 public:
-	UDPServerViewer();
-	~UDPServerViewer();
+	RankViewer(string Name, string AILevelStr);
+	~RankViewer();
 	void Update(void);
 	void Draw(void);
-	void PushbackViewer(sockaddr_in Address);
-	void SetMessage(const char * Message, sockaddr_in Address);
-	void SetMessage(std::vector<string> SplitedStr, sockaddr_in Address);
+	void SetPosition(D3DXVECTOR3 Pos);
+	int GetAILevel(void) { return this->AILevel; };
 };
 
 #endif

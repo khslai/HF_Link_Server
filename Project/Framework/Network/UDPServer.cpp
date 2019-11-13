@@ -8,7 +8,9 @@
 #include "UDPServer.h"
 #include "PacketConfig.h"
 #include "../String/String.h"
-#include "../../source/UDPServerViewer.h"
+#include "../Tool/DebugWindow.h"
+#include "../../source/Viewer/UDPServerViewer.h"
+
 
 
 //*****************************************************************************
@@ -62,6 +64,15 @@ UDPServer::~UDPServer()
 //=============================================================================
 void UDPServer::Draw()
 {
+	Debug::Begin("UDP Server's Clients");
+	for (auto &Client : ConnectedList)
+	{
+		Debug::Text("IP Address:%s", inet_ntoa(Client.sin_addr));
+		Debug::Text("Port:%d", Client.sin_port);
+		Debug::NewLine();
+	}
+	Debug::End();
+
 	Viewer->Draw();
 }
 
@@ -107,7 +118,7 @@ void UDPServer::ReceivePacket(void)
 		// 接続リストに新しいクライアントを追加
 		if (!Existed)
 		{
-			Viewer->PushbackViewer(FromAddress);
+			//Viewer->PushbackViewer(FromAddress);
 			ConnectedList.push_back(FromAddress);
 		}
 
@@ -122,7 +133,7 @@ void UDPServer::ReceivePacket(void)
 			SplitedStr.erase(SplitedStr.begin());
 
 			// ビューアにメッセージを設置
-			Viewer->SetMessage(SplitedStr, FromAddress);
+			Viewer->CreateRankViewer(SplitedStr);
 		}
 	}
 }
