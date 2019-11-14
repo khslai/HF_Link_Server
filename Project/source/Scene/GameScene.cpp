@@ -79,20 +79,18 @@ void GameScene::Update()
 		Actor->Update();
 	}
 
+	Server->Update();
+
+	// マルチスレッドの実行を待つ
 	DWORD ThreadResult = WaitForSingleObject(UDPServer::Thread, 1);
-	static int Count = 0;
-	if (ThreadResult == WAIT_OBJECT_0)
-	{
-		// スレッド終了
-	}
-	else if (ThreadResult == WAIT_TIMEOUT)
-	{
-		Count++;
-		// タイムアウト
-	}
-	Debug::Begin("UDP Server");
-	Debug::Text("Second Thread Entry Count:%d", Count);
-	Debug::End();
+	//if (ThreadResult == WAIT_OBJECT_0)
+	//{
+	//	// スレッド終了
+	//}
+	//else if (ThreadResult == WAIT_TIMEOUT)
+	//{
+	//	// タイムアウト
+	//}
 
 	//ステートを更新
 	State next = fsm[currentState]->OnUpdate(*this);

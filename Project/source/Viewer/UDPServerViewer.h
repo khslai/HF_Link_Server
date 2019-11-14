@@ -22,19 +22,24 @@ class TextViewer;
 class UDPServerViewer
 {
 private:
-	//int ConnectedNum;
-	TextViewer *TitleText;
+	int CountFrame;
+	int InsertNum;
+	float MoveDestPosY;
+	// ˆÚ“®’†ƒtƒ‰ƒO
+	bool InMove;
+	TextureDrawer *RankingTitle;
+	RankViewer* Temp;
 	std::vector<RankViewer*> Ranking;
-	//std::vector<sockaddr_in> ConnectedList;
 
 	void SortRanking(RankViewer* Rank);
+	void InsertRanking(int Num, RankViewer* Rank);
 
 public:
 	UDPServerViewer();
 	~UDPServerViewer();
 	void Update(void);
 	void Draw(void);
-	void CreateRankViewer(std::vector<string> SplitedStr);
+	void CreateRankViewer(string PlayerName, string AILevel);
 #if _DEBUG
 	void ClearRanking(void);
 #endif

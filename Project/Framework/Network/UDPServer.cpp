@@ -60,9 +60,9 @@ UDPServer::~UDPServer()
 }
 
 //=============================================================================
-// 描画
+// 更新
 //=============================================================================
-void UDPServer::Draw()
+void UDPServer::Update(void)
 {
 	Debug::Begin("UDP Server's Clients");
 	for (auto &Client : ConnectedList)
@@ -74,47 +74,33 @@ void UDPServer::Draw()
 	Debug::End();
 
 	Debug::Begin("Ranking Test");
-	std::vector<string> TestVec;
-	TestVec.push_back("Player");
 	if (Debug::Button("Clear"))
 		Viewer->ClearRanking();
 	else if (Debug::Button("123"))
-	{
-		TestVec.push_back("123");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123");
 	else if (Debug::Button("123455"))
-	{
-		TestVec.push_back("123455");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123455");
 	else if (Debug::Button("123456"))
-	{
-		TestVec.push_back("123456");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123456");
 	else if (Debug::Button("123457"))
-	{
-		TestVec.push_back("123457");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123457");
 	else if (Debug::Button("123456789"))
-	{
-		TestVec.push_back("123456789");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123456789");
 	else if (Debug::Button("123456789123"))
-	{
-		TestVec.push_back("123456789123");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123456789123");
 	else if (Debug::Button("123456789123456"))
-	{
-		TestVec.push_back("123456789123456");
-		Viewer->CreateRankViewer(TestVec);
-	}
+		Viewer->CreateRankViewer("Player", "123456789123456");
 	Debug::End();
 
+	Viewer->Update();
+}
+
+
+//=============================================================================
+// 描画
+//=============================================================================
+void UDPServer::Draw()
+{
 	Viewer->Draw();
 }
 
@@ -145,6 +131,7 @@ void UDPServer::ReceivePacket(void)
 		// メッセージ受信
 		recvfrom(ServerSocket, (char*)data, sizeof(data), 0, (sockaddr*)&FromAddress, &AddressLength);
 
+#if _DEBUG
 		// 送信元のIPアドレスが既にリストの中かどうかを確認
 		bool Existed = false;
 		for (auto &Address : ConnectedList)
@@ -160,9 +147,9 @@ void UDPServer::ReceivePacket(void)
 		// 接続リストに新しいクライアントを追加
 		if (!Existed)
 		{
-			//Viewer->PushbackViewer(FromAddress);
 			ConnectedList.push_back(FromAddress);
 		}
+#endif
 
 		string Message = data;
 		// 受信した文字列を分割
@@ -175,7 +162,8 @@ void UDPServer::ReceivePacket(void)
 			SplitedStr.erase(SplitedStr.begin());
 
 			// ビューアにメッセージを設置
-			Viewer->CreateRankViewer(SplitedStr);
+			// 0番 = プレイヤーの名前、1番 = AIレベル
+			Viewer->CreateRankViewer(SplitedStr.at(0),SplitedStr.at(1));
 		}
 	}
 }

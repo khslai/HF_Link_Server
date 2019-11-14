@@ -73,9 +73,9 @@ void BaseGame::Update()
 
 		sceneManager->Update();
 
-		Tween::mInstance->Update();
+		//Tween::mInstance->Update();
 		TaskManager::Instance()->Update();
-		TransitionController::Instance()->Update();
+		//TransitionController::Instance()->Update();
 	}
 }
 
@@ -98,13 +98,13 @@ void BaseGame::Draw()
 	RendererEffect::SetProjection(Camera::MainCamera()->GetProjectionMtx());
 
 	//トランジションマスクを描画
-	TransitionController::Instance()->DrawMask();
+	//TransitionController::Instance()->DrawMask();
 
 	//シーンを描画
 	sceneManager->Draw();
 
 	//トランジション背景を描画
-	TransitionController::Instance()->DrawTransition();
+	//TransitionController::Instance()->DrawTransition();
 
 	//レンダーターゲット復元
 	pDevice->SetRenderTarget(0, oldSuf);

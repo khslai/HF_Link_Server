@@ -28,7 +28,8 @@ private:
 public:
 	UDPServer();
 	~UDPServer();
-	void Draw();
+	void Update(void);
+	void Draw(void);
 
 	// マルチスレッド用
 	static HANDLE Thread;

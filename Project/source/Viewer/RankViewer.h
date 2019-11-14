@@ -21,18 +21,32 @@ class TextureDrawer;
 class RankViewer
 {
 private:
-	int AILevel;
+	// 順位
 	int RankNum;
+	// 画面内描画フラグ
+	bool InScreen;
+
+	// AIレベルの文字列
 	string AILevelStr;
+	// 描画の中心座標
 	D3DXVECTOR3 CenterPos;
+	// 移動先座標
+	D3DXVECTOR3 DestPos;
+	// AIレベル描画の基準座標
 	D3DXVECTOR3 AILevelBasePos;
+	// 分割したAIレベル
 	std::vector<int> SplitedInt;
 
+	// プレイヤーの名前表示
 	TextViewer *PlayerName;
+	// AIレベル表示
 	TextureDrawer *AILevelDrawer;
+	// 順位表示
 	TextureDrawer *RankDrawer;
 
+	// テキストとテクスチャの描画位置を設定
 	void SetDrawPosition(void);
+	// AILevelの文字列を分割
 	void SplitAILevel(void);
 
 public:
@@ -42,6 +56,7 @@ public:
 	void Draw(void);
 	void SetPosition(D3DXVECTOR3 Pos);
 	void SetRankNum(int RankNum) { this->RankNum = RankNum; };
+	D3DXVECTOR3 GetPosition(void) { return this->CenterPos; };
 	unsigned long long GetAILevel(void);
 };
 

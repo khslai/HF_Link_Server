@@ -11,6 +11,7 @@
 #include "../../Framework/Renderer2D/TextViewer.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
+#include "../../Framework/Math/Easing.h"
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -23,17 +24,19 @@ const float DigitalInterval = 70.0f;
 // コンストラクタ
 //=============================================================================
 RankViewer::RankViewer(string Name, string AILevelStr) :
+	RankNum(0),
+	InScreen(true),
 	AILevelStr(AILevelStr)
 {
-	PlayerName = new TextViewer("data/TEXTURE/Viewer/EventViewer/EventMessage/Text_cinecaption226.ttf", 80);
+	RankDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(1024.0f, 384.0f));
+	RankDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
+
+	PlayerName = new TextViewer("data/TEXTURE/Viewer/RankingViewer/Text_cinecaption226.ttf", 80);
 	PlayerName->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	PlayerName->SetText(Name);
 
 	AILevelDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(512.0f, 384.0f));
-	AILevelDrawer->LoadTexture("data/TEXTURE/Viewer/GameViewer/LevelViewer/Number.png");
-
-	RankDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(1024.0f, 384.0f));
-	RankDrawer->LoadTexture("data/TEXTURE/Viewer/GameViewer/LevelViewer/Ranking.png");
+	AILevelDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Number.png");
 
 	SetDrawPosition();
 	SplitAILevel();
@@ -62,9 +65,18 @@ void RankViewer::Update(void)
 //=============================================================================
 void RankViewer::Draw(void)
 {
+	// 画面外だったら、描画しない
+	if (!InScreen)
+		return;
+
+	// 順位表示
+	RankDrawer->SetTexture(RankNum);
+	RankDrawer->Draw();
+
 	// プレイヤーの名前表示
 	PlayerName->Draw();
 
+	// AIレベル表示
 	//for (int i = 0; i < DigitalMax; i++)
 	for (unsigned int i = 0; i < SplitedInt.size(); i++)
 	{
@@ -74,9 +86,6 @@ void RankViewer::Draw(void)
 		AILevelDrawer->SetTexture(SplitedInt.at(i));
 		AILevelDrawer->Draw();
 	}
-
-	RankDrawer->SetTexture(RankNum);
-	RankDrawer->Draw();
 }
 
 //=============================================================================
@@ -85,6 +94,7 @@ void RankViewer::Draw(void)
 void RankViewer::SetPosition(D3DXVECTOR3 Pos)
 {
 	CenterPos = Pos;
+	InScreen = CenterPos.y > SCREEN_HEIGHT ? false : true;
 	SetDrawPosition();
 }
 
@@ -109,7 +119,7 @@ void RankViewer::SplitAILevel(void)
 	{
 		if (!StrTemp.empty())
 		{
-			// 文字列の最初一桁を取得
+			// 文字列の最初1文字を取得
 			char Num = StrTemp.front();
 
 			// int型に変換、保存
