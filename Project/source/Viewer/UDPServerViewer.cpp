@@ -13,6 +13,8 @@
 #include "../../Framework/Tool/DebugWindow.h"
 
 const int RankingMaxNum = 10;
+const float RankInterval = 120.0f;
+const D3DXVECTOR3 DefaultPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, (SCREEN_HEIGHT / 10 * 2.0f + 120.0f), 0.0f);
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -28,11 +30,6 @@ UDPServerViewer::UDPServerViewer()
 	TitleText->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	TitleText->SetPos((int)(SCREEN_WIDTH / 2), (int)(SCREEN_HEIGHT / 10 * 2.0f));
 	TitleText->SetText("ランキング表示");
-
-	Ranking.reserve(RankingMaxNum);
-	RankViewer* Rank = new RankViewer("Test", "123455432110");
-	Rank->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X - 200.0f, (SCREEN_HEIGHT / 10 * 2.0f + 120.0f), 0.0f));
-	Ranking.push_back(Rank);
 }
 
 //=============================================================================
@@ -42,7 +39,6 @@ UDPServerViewer::~UDPServerViewer()
 {
 	SAFE_DELETE(TitleText);
 	Utility::DeleteContainer(Ranking);
-	//ConnectedList.clear();
 }
 
 //=============================================================================
@@ -57,15 +53,6 @@ void UDPServerViewer::Update(void)
 //=============================================================================
 void UDPServerViewer::Draw(void)
 {
-	//Debug::Begin("UDP Server's Clients");
-	//for (auto &Client : ConnectedList)
-	//{
-	//	Debug::Text("IP Address:%s", inet_ntoa(Client.sin_addr));
-	//	Debug::Text("Port:%d", Client.sin_port);
-	//	Debug::NewLine();
-	//}
-	//Debug::End();
-
 	TitleText->Draw();
 
 	for (auto & Rank : Ranking)
@@ -81,54 +68,59 @@ void UDPServerViewer::CreateRankViewer(std::vector<string> SplitedStr)
 {
 	// 0番 = プレイヤーの名前、1番 = AIレベル
 	RankViewer* Rank = new RankViewer(SplitedStr.at(0), SplitedStr.at(1));
-	Ranking.push_back(Rank);
-	//ConnectedNum++;
+	SortRanking(Rank);
 }
 
-#if 0
-//=============================================================================
-// 受け取ったメッセージを処理
-//=============================================================================
-void UDPServerViewer::SetMessage(const char * Message, sockaddr_in Address)
-{
-	for (auto &Drawer : DrawList)
-	{
-		if (Drawer.Address.sin_port == Address.sin_port &&
-			strcmp(inet_ntoa(Drawer.Address.sin_addr), inet_ntoa(Address.sin_addr)) == 0)
-		{
-			char Text[256];
-			sprintf(Text, "送信元IP/Port：%s/%d\n%s",
-				inet_ntoa(Drawer.Address.sin_addr),
-				ntohs(Drawer.Address.sin_port),
-				Message);
-			Drawer.Text->SetText(Text);
-		}
-	}
-}
-
-//=============================================================================
-// 受け取ったメッセージを処理
-//=============================================================================
-void UDPServerViewer::SetMessage(std::vector<string> SplitedStr, sockaddr_in Address)
-{
-	for (auto &Drawer : DrawList)
-	{
-		if (Drawer.Address.sin_port == Address.sin_port &&
-			strcmp(inet_ntoa(Drawer.Address.sin_addr), inet_ntoa(Address.sin_addr)) == 0)
-		{
-			char Text[256];
-			sprintf(Text, "プレイヤーの名前：%s\nAIレベル：%s",
-				SplitedStr.at(0).c_str(),
-				SplitedStr.at(1).c_str());
-			Drawer.Text->SetText(Text);
-}
-	}
-}
-#endif
 //=============================================================================
 // ランキングの順番を決める
 //=============================================================================
-void UDPServerViewer::SortRanking(void)
+void UDPServerViewer::SortRanking(RankViewer* Rank)
 {
+	int Num = 0;
 
+	if (Ranking.empty())
+	{
+		Ranking.push_back(Rank);
+	}
+	else
+	{
+		unsigned long long AILevel = Rank->GetAILevel();
+		for (auto &RankVec : Ranking)
+		{
+			unsigned long long AILevelVec = RankVec->GetAILevel();
+			if (AILevel > AILevelVec)
+			{
+				Ranking.insert(Ranking.begin() + Num, Rank);
+				if (Ranking.size() > RankingMaxNum)
+				{
+					Ranking.pop_back();
+				}
+				break;
+			}
+			else if (AILevel == AILevelVec)
+			{
+				Ranking.insert(Ranking.begin() + (Num + 1), Rank);
+				if (Ranking.size() > RankingMaxNum)
+				{
+					Ranking.pop_back();
+				}
+				break;
+			}
+
+			Num++;
+		}
+	}
+
+	Num = 0;
+	for (auto &RankVec : Ranking)
+	{
+		RankVec->SetRankNum(Num);
+		RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
+		Num++;
+	}
+}
+
+void UDPServerViewer::ClearRanking(void)
+{
+	Utility::DeleteContainer(Ranking);
 }

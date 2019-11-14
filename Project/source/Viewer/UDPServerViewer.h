@@ -27,7 +27,7 @@ private:
 	std::vector<RankViewer*> Ranking;
 	//std::vector<sockaddr_in> ConnectedList;
 
-	void SortRanking(void);
+	void SortRanking(RankViewer* Rank);
 
 public:
 	UDPServerViewer();
@@ -35,8 +35,9 @@ public:
 	void Update(void);
 	void Draw(void);
 	void CreateRankViewer(std::vector<string> SplitedStr);
-	//void SetMessage(const char * Message, sockaddr_in Address);
-	//void SetMessage(std::vector<string> SplitedStr, sockaddr_in Address);
+#if _DEBUG
+	void ClearRanking(void);
+#endif
 };
 
 #endif

@@ -22,6 +22,7 @@ class RankViewer
 {
 private:
 	int AILevel;
+	int RankNum;
 	string AILevelStr;
 	D3DXVECTOR3 CenterPos;
 	D3DXVECTOR3 AILevelBasePos;
@@ -29,6 +30,7 @@ private:
 
 	TextViewer *PlayerName;
 	TextureDrawer *AILevelDrawer;
+	TextureDrawer *RankDrawer;
 
 	void SetDrawPosition(void);
 	void SplitAILevel(void);
@@ -39,7 +41,8 @@ public:
 	void Update(void);
 	void Draw(void);
 	void SetPosition(D3DXVECTOR3 Pos);
-	int GetAILevel(void) { return this->AILevel; };
+	void SetRankNum(int RankNum) { this->RankNum = RankNum; };
+	unsigned long long GetAILevel(void);
 };
 
 #endif

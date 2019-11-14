@@ -73,6 +73,48 @@ void UDPServer::Draw()
 	}
 	Debug::End();
 
+	Debug::Begin("Ranking Test");
+	std::vector<string> TestVec;
+	TestVec.push_back("Player");
+	if (Debug::Button("Clear"))
+		Viewer->ClearRanking();
+	else if (Debug::Button("123"))
+	{
+		TestVec.push_back("123");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123455"))
+	{
+		TestVec.push_back("123455");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123456"))
+	{
+		TestVec.push_back("123456");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123457"))
+	{
+		TestVec.push_back("123457");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123456789"))
+	{
+		TestVec.push_back("123456789");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123456789123"))
+	{
+		TestVec.push_back("123456789123");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	else if (Debug::Button("123456789123456"))
+	{
+		TestVec.push_back("123456789123456");
+		Viewer->CreateRankViewer(TestVec);
+	}
+	Debug::End();
+
 	Viewer->Draw();
 }
 
