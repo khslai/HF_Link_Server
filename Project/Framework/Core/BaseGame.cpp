@@ -4,11 +4,11 @@
 * @author —§‰Ô—Y‘¾
 ******************************************************************/
 #include "BaseGame.h"
-#include "..\Input\input.h"
-#include "..\Camera\Camera.h"
+#include "../Input/input.h"
+#include "../Camera/Camera.h"
 #include "../Light/Light.h"
-#include "..\Tool\DebugWindow.h"
-#include "..\Tween\Tween.h"
+#include "../Tool/DebugWindow.h"
+#include "../Tween/Tween.h"
 #include "../Tool/ProfilerCPU.h"
 #include "../Task/TaskManager.h"
 #include "../Transition/TransitionController.h"
@@ -73,7 +73,7 @@ void BaseGame::Update()
 
 		sceneManager->Update();
 
-		//Tween::mInstance->Update();
+		Tween::mInstance->Update();
 		TaskManager::Instance()->Update();
 		//TransitionController::Instance()->Update();
 	}

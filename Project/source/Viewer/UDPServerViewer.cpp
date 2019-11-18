@@ -8,7 +8,7 @@
 #include "UDPServerViewer.h"
 #include "RankViewer.h"
 #include "TextureDrawer.h"
-#include "../../Framework/Renderer2D/TextViewer.h"
+#include "RankingMask.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
@@ -16,6 +16,14 @@
 const int RankingMaxNum = 10;
 const float RankInterval = 120.0f;
 const D3DXVECTOR3 DefaultPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 250.0f, 0.0f);
+
+enum ViewerState
+{
+	Idle,
+	Move,
+	Expand,
+	Insert,
+};
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -30,6 +38,10 @@ UDPServerViewer::UDPServerViewer()
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
 	RankingTitle->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
 	RankingTitle->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, 108.0f, 0.0f));
+
+	RenderTexture = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 120.0f));
+	//Mask = new RankingMask(D3DXVECTOR3(SCREEN_CENTER_X, 108.0f, 0.0f));
+	//Mask->Set();
 }
 
 //=============================================================================
@@ -38,6 +50,9 @@ UDPServerViewer::UDPServerViewer()
 UDPServerViewer::~UDPServerViewer()
 {
 	SAFE_DELETE(RankingTitle);
+	SAFE_DELETE(RenderTexture);
+	//SAFE_DELETE(Mask);
+	InsertTemp = nullptr;
 	Utility::DeleteContainer(Ranking);
 }
 
@@ -46,7 +61,11 @@ UDPServerViewer::~UDPServerViewer()
 //=============================================================================
 void UDPServerViewer::Update(void)
 {
-	if (!InMove)
+	const int MoveFrame = 30;
+	const int ExpandFrame = 60;
+	const float MoveSpeed = RankInterval / MoveFrame;
+
+	if (State == ViewerState::Idle)
 	{
 		// 順番によって、表示座標を設定
 		int Num = 0;
@@ -57,36 +76,66 @@ void UDPServerViewer::Update(void)
 			Num++;
 		}
 	}
-	else
+	else if (State == ViewerState::Move)
 	{
-		if (CountFrame < 60)
+		if (CountFrame < MoveFrame)
 		{
 			CountFrame++;
 
-			//float Time = CountFrame / 90.0f;
-			//MoveDestPosY = Easing::EaseValue(Time, 0.0f, 120.0f, Linear);
-
-			//for (auto Viewer = Ranking.at(InsertNum); Viewer != Ranking.end(); Viewer++)
+			// 徐々に下に移動する
 			for (unsigned int i = InsertNum; i < Ranking.size(); i++)
 			{
 				D3DXVECTOR3 CenterPos = Ranking.at(i)->GetPosition();
-				Ranking.at(i)->SetPosition(CenterPos + D3DXVECTOR3(0.0f, 2.0f, 0.0f));
+				Ranking.at(i)->SetPosition(CenterPos + D3DXVECTOR3(0.0f, MoveSpeed, 0.0f));
 			}
 
-			if (CountFrame == 60)
+			if (CountFrame == MoveFrame)
 			{
-				// ランキングに追加
-				Ranking.insert(Ranking.begin() + InsertNum, Temp);
-
-				// 最大表示数より多ければ、最下位の人を削除
-				if (Ranking.size() > RankingMaxNum)
+				// 順位の調整
+				for (unsigned int i = InsertNum; i < Ranking.size(); i++)
 				{
-					Ranking.pop_back();
+					Ranking.at(i)->SetRankNum(i + 1);
 				}
 
-				InMove = false;
+				LPDIRECT3DTEXTURE9 NewTexture = nullptr;
+				InsertTemp->SetRankNum(InsertNum);
+				InsertTemp->CreateRankTexture(&NewTexture);
+				RenderTexture->LoadTexture(&NewTexture);
+				RenderTexture->SetPosition(DefaultPos + D3DXVECTOR3(300.0f, InsertNum * RankInterval, 0.0f));
+				RenderTexture->SetTextureExpand(0.0f);
+
+				State = ViewerState::Expand;
+				CountFrame = 0;
 			}
 		}
+	}
+	else if (State == ViewerState::Expand)
+	{
+		if (CountFrame < ExpandFrame)
+		{
+			CountFrame++;
+			float Time = (float)CountFrame / ExpandFrame;
+
+			RenderTexture->SetTextureExpand(Time);
+
+			if (CountFrame == ExpandFrame)
+			{
+				State = ViewerState::Insert;
+			}
+		}
+	}
+	else if (State == ViewerState::Insert)
+	{
+		InsertTemp->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, RankInterval * InsertNum, 0.0f));
+		Ranking.insert(Ranking.begin() + InsertNum, InsertTemp);
+		InsertTemp = nullptr;
+
+		// 最大表示数より多ければ、最下位の人を削除
+		if (Ranking.size() > RankingMaxNum)
+		{
+			Ranking.pop_back();
+		}
+		State = ViewerState::Idle;
 	}
 }
 
@@ -96,6 +145,11 @@ void UDPServerViewer::Update(void)
 void UDPServerViewer::Draw(void)
 {
 	RankingTitle->Draw();
+
+	if (State == ViewerState::Expand)
+	{
+		RenderTexture->Draw();
+	}
 
 	for (auto & Rank : Ranking)
 	{
@@ -143,12 +197,12 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 				// スコアの比較
 				if (AILevel > AILevelVec)
 				{
-					InsertRanking(Num, Rank);
+					RankingMoveStart(Num, Rank);
 					break;
 				}
 				else if (AILevel == AILevelVec)
 				{
-					InsertRanking(Num + 1, Rank);
+					RankingMoveStart(Num + 1, Rank);
 					break;
 				}
 				Num++;
@@ -158,22 +212,22 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 }
 
 //=============================================================================
-// ランキングの順番を決める
+// ランキングの移動開始
 //=============================================================================
-void UDPServerViewer::InsertRanking(int Num, RankViewer* Rank)
+void UDPServerViewer::RankingMoveStart(int Num, RankViewer* Rank)
 {
-	InMove = true;
+	State = ViewerState::Move;
 	InsertNum = Num;
+	InsertTemp = Rank;
 	CountFrame = 0;
-	Temp = Rank;
-	//// ランキングに追加
-	//Ranking.insert(Ranking.begin() + Num, Rank);
+}
 
-	//// 最大表示数より多ければ、最下位の人を削除
-	//if (Ranking.size() > RankingMaxNum)
-	//{
-	//	Ranking.pop_back();
-	//}
+//=============================================================================
+// ランキング追加処理
+//=============================================================================
+void UDPServerViewer::RankingInsert(void)
+{
+
 }
 
 #if _DEBUG

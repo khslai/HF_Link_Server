@@ -35,6 +35,9 @@ private:
 	VERTEX_2D Vertex[NUM_VERTEX];
 	LPDIRECT3DTEXTURE9 Texture;
 
+	void MakeVertex();
+	void SetVertex();
+	void SetTexture(void);
 public:
 	TextureDrawer(D3DXVECTOR2 TextureSize);
 	TextureDrawer(int DevideX, int DevideY, D3DXVECTOR2 TextureSize);
@@ -42,13 +45,12 @@ public:
 
 	void Draw();
 	void LoadTexture(const char *path);
+	void LoadTexture(LPDIRECT3DTEXTURE9* Texture);
 	void SetAlpha(float alpha);
 	void SetColor(D3DXCOLOR color);
 	void SetPosition(D3DXVECTOR3 Pos);
-	virtual void MakeVertex();
-	virtual void SetVertex();
-	virtual void SetTexture(void);
-	virtual void SetTexture(int UnitNo);
+	void SetTexture(int UnitNo);
+	void SetTextureExpand(float Time);
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include"../../main.h"
 #include "TextureDrawer.h"
 #include "../../Framework/Resource/ResourceManager.h"
+#include "../../Framework/Math/Easing.h"
 
 //=============================================================================
 // コンストラクタ
@@ -51,6 +52,18 @@ void TextureDrawer::LoadTexture(const char *path)
 }
 
 //=============================================================================
+// テクスチャの読み込み
+//=============================================================================
+void TextureDrawer::LoadTexture(LPDIRECT3DTEXTURE9 *Texture)
+{
+	if (this->Texture != nullptr)
+	{
+		SAFE_RELEASE(this->Texture);
+	}
+	this->Texture = *Texture;
+}
+
+//=============================================================================
 // オブジェクト描画処理
 //=============================================================================
 void TextureDrawer::Draw()
@@ -92,7 +105,7 @@ void TextureDrawer::MakeVertex()
 //=============================================================================
 // 頂点座標の設定
 //=============================================================================
-void TextureDrawer::SetVertex()
+void TextureDrawer::SetVertex(void)
 {
 	// 頂点座標の設定
 	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
@@ -124,6 +137,26 @@ void TextureDrawer::SetTexture(int UnitNo)
 	Vertex[1].tex = D3DXVECTOR2((x + 1) * UnitUV.x, y * UnitUV.y);
 	Vertex[2].tex = D3DXVECTOR2(x * UnitUV.x, (y + 1) * UnitUV.y);
 	Vertex[3].tex = D3DXVECTOR2((x + 1) * UnitUV.x, (y + 1) * UnitUV.y);
+}
+
+//=============================================================================
+// テクスチャ展開演出処理
+//=============================================================================
+void TextureDrawer::SetTextureExpand(float Time)
+{
+	float VtxPercent = Easing::EaseValue(Time, -1.0f, 1.0f, EaseType::InQuart);
+	float TexPercent = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::InQuart);
+
+	// 頂点座標の設定
+	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, -TextureSize.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, TextureSize.y / 2, 0.0f);
+
+	Vertex[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	Vertex[1].tex = D3DXVECTOR2(TexPercent, 0.0f);
+	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	Vertex[3].tex = D3DXVECTOR2(TexPercent, 1.0f);
 }
 
 //=============================================================================

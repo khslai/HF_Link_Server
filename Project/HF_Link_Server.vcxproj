@@ -225,6 +225,7 @@
     <ClCompile Include="source\Scene\GameScene.cpp" />
     <ClCompile Include="source\Scene\GameState\GameIdle.cpp" />
     <ClCompile Include="source\Scene\GameState\GameInit.cpp" />
+    <ClCompile Include="source\Viewer\RankingMask.cpp" />
     <ClCompile Include="source\Viewer\RankViewer.cpp" />
     <ClCompile Include="source\Viewer\TextureDrawer.cpp" />
     <ClCompile Include="source\Viewer\UDPServerViewer.cpp" />
@@ -346,6 +347,7 @@
     <ClInclude Include="source\Scene\GameScene.h" />
     <ClInclude Include="source\Scene\GameState\GameIdle.h" />
     <ClInclude Include="source\Scene\GameState\GameInit.h" />
+    <ClInclude Include="source\Viewer\RankingMask.h" />
     <ClInclude Include="source\Viewer\RankViewer.h" />
     <ClInclude Include="source\Viewer\TextureDrawer.h" />
     <ClInclude Include="source\Viewer\UDPServerViewer.h" />

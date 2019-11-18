@@ -88,6 +88,57 @@ void RankViewer::Draw(void)
 	}
 }
 
+void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
+{
+	LPDIRECT3DSURFACE9 OldSurface;
+	LPDIRECT3DSURFACE9 RenderSurface;	
+	LPDIRECT3DTEXTURE9 RenderTexture;
+	LPDIRECT3DDEVICE9 Device = GetDevice();
+	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.05f, 0.0f);
+	const D3DXVECTOR3 DrawPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 60.0f, 0.0f);
+	SetPosition(DrawPos);
+
+	//レンダーテクスチャ作成
+	Device->CreateTexture(SCREEN_WIDTH, 120,
+		1,
+		D3DUSAGE_RENDERTARGET,
+		D3DFMT_A8R8G8B8,
+		D3DPOOL_DEFAULT,
+		&RenderTexture,
+		0);
+
+	RenderTexture->GetSurfaceLevel(0, &RenderSurface);
+
+	//レンダーターゲット切り替え
+	Device->GetRenderTarget(0, &OldSurface);
+	Device->SetRenderTarget(0, RenderSurface);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET, BackColor, 1.0f, 0);
+
+	// 順位表示
+	RankDrawer->SetTexture(RankNum);
+	RankDrawer->Draw();
+
+	// プレイヤーの名前表示
+	PlayerName->Draw();
+
+	// AIレベル表示
+	for (unsigned int i = 0; i < SplitedInt.size(); i++)
+	{
+		// 左(最大桁)から描画
+		AILevelDrawer->SetPosition(AILevelBasePos + D3DXVECTOR3(((i + 1) * DigitalInterval), 0.0f, 0.0f));
+		AILevelDrawer->SetTexture(SplitedInt.at(i));
+		AILevelDrawer->Draw();
+	}
+
+	//レンダーターゲット復元
+	Device->SetRenderTarget(0, OldSurface);
+	SAFE_RELEASE(OldSurface);
+	SAFE_RELEASE(RenderSurface);
+
+	*Texture = RenderTexture;
+	RenderTexture = nullptr;
+}
+
 //=============================================================================
 // テキストとテクスチャの描画位置を設定
 //=============================================================================
