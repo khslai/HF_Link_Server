@@ -110,7 +110,7 @@ void SceneParticleManager::Draw()
 	pDevice->SetRenderState(D3DRS_LIGHTING, true);
 	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, true);
 	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, false);
-	pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	//pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 }
 
 /**************************************

@@ -18,9 +18,9 @@
 前方宣言
 ***************************************/
 class FieldCamera;
-class EventActorBase;
 class PlaceActor;
 class UDPServer;
+class GameParticleManager;
 
 /**************************************
 クラス定義
@@ -53,9 +53,8 @@ private:
 	std::vector<PlaceActor*> PlaceActorContainer;
 	State currentState, prevState;
 	FieldCamera* fieldCamera;					//フィールドカメラ
-	EventActorBase *EventActor;
-
-	UDPServer *Server;
+	GameParticleManager *ParticleManager;		// パーティクルマネージャー
+	UDPServer *Server;							// サーバー
 
 	//各ステートクラス
 	class GameInit;

@@ -58,8 +58,8 @@ void PlaceActor::Draw()
 		return;
 
 	transform->SetWorld();
-	//mesh->Draw();
-	mesh->DrawWireframe(false);
+	mesh->Draw();
+	//mesh->DrawWireframe(false);
 }
 
 //=====================================

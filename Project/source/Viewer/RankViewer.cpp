@@ -94,7 +94,7 @@ void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 	LPDIRECT3DSURFACE9 RenderSurface;	
 	LPDIRECT3DTEXTURE9 RenderTexture;
 	LPDIRECT3DDEVICE9 Device = GetDevice();
-	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.05f, 0.0f);
+	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 	const D3DXVECTOR3 DrawPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 60.0f, 0.0f);
 	SetPosition(DrawPos);
 

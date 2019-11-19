@@ -13,6 +13,7 @@
 #include "../EventActorBase.h"
 #include "../Actor/PlaceActor.h"
 #include "../Actor/CityActor.h"
+#include "../Effect/GameParticleManager.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Tool/ProfilerCPU.h"
 #include "../../Framework/Core/SceneManager.h"
@@ -38,9 +39,16 @@ void GameScene::Init()
 
 	//各インスタンス作成
 	PlaceActorContainer.push_back(new CityActor(Vector3::Zero));
+
+	//パーティクル初期化
+	ParticleManager = GameParticleManager::Instance();
+	ParticleManager->Init();
+
+	// サーバーの設定
 	Server = new UDPServer();
 	// サーバー受信スレッド設定
 	UDPServer::Thread = (HANDLE)_beginthreadex(NULL, 0, UDPServer::ThreadEntryPoint, Server, 0, NULL);
+
 
 	//ステートマシン作成
 	fsm.resize(State::Max, NULL);
@@ -58,6 +66,9 @@ void GameScene::Uninit()
 {
 	//カメラ削除
 	SAFE_DELETE(fieldCamera);
+
+	//パーティクル削除
+	ParticleManager->Uninit();
 
 	//アクターコンテナ削除
 	Utility::DeleteContainer(PlaceActorContainer);
@@ -80,6 +91,8 @@ void GameScene::Update()
 	}
 
 	Server->Update();
+
+	ParticleManager->Update();
 
 	// マルチスレッドの実行を待つ
 	DWORD ThreadResult = WaitForSingleObject(UDPServer::Thread, 1);
@@ -110,6 +123,8 @@ void GameScene::Draw()
 	}
 
 	Server->Draw();
+
+	ParticleManager->Draw();
 }
 
 /**************************************

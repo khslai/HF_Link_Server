@@ -321,7 +321,10 @@
     <ClCompile Include="source\Viewer\RankViewer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="source\Viewer\RankingMask.cpp">
+    <ClCompile Include="source\Effect\GameParticleManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Effect\Game\ExpandEffect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -683,7 +686,10 @@
     <ClInclude Include="source\Viewer\RankViewer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="source\Viewer\RankingMask.h">
+    <ClInclude Include="source\Effect\GameParticleManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Effect\Game\ExpandEffect.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

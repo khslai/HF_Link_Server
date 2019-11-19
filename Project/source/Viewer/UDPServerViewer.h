@@ -14,7 +14,6 @@ using namespace std;
 
 class RankViewer;
 class TextureDrawer;
-class RankingMask;
 
 //*****************************************************************************
 // クラス定義
@@ -24,18 +23,17 @@ class UDPServerViewer
 private:
 	int CountFrame;
 	int InsertNum;
-	int State;		// 状態
-	//float MoveDestPosY;
-	// 移動中フラグ
-	bool InMove;
-	TextureDrawer *RankingTitle;
-	RankViewer* InsertTemp;
-	//RankingMask* Mask;
-	std::vector<RankViewer*> Ranking;
-	TextureDrawer *RenderTexture;
+	int State;			// 状態
+	bool InUpdateRank;
+	TextureDrawer *RankingTitle;		// タイトル
+	RankViewer* InsertTemp;				// 追加予定のオブジェクト
+	std::vector<RankViewer*> Ranking;	// ランキング
+
+	TextureDrawer *ExpandTexture;			// ランク追加時に演出用のテクスチャ
 
 	void SortRanking(RankViewer* Rank);
-	void RankingMoveStart(int Num, RankViewer* Rank);
+	void RankingMoveStart(int Num);
+	void RankingExpand();
 	void RankingInsert(void);
 
 public:
