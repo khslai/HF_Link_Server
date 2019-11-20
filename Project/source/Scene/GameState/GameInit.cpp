@@ -31,8 +31,6 @@ void GameScene::GameInit::OnStart(GameScene & entity)
 	entity.fieldCamera->SetTargetPos(Vector3::Zero);
 	entity.fieldCamera->ChangeMode(FieldCamera::Mode::FrontSide);
 
-
-
 	//トランジション画面をオフにして遷移
 	//TransitionController::Instance()->SetTransition(true, TransitionType::HexaPop, [&]()
 	//{

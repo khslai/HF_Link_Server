@@ -13,14 +13,17 @@
 using namespace std;
 
 class UDPServerViewer;
+class EventLiveViewer;
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
 class UDPServer
 {
 private:
-	UDPServerViewer *Viewer;
+	EventLiveViewer *EventViewer;			// イベント中継ビューア
+	UDPServerViewer *RankingViewer;			// ランキング表示ビューア
 	SOCKET ServerSocket;
+	std::vector<std::vector<string>> RankStack;		// 追加予定のランク
 	std::vector<sockaddr_in> ConnectedList;
 
 	void ReceivePacket(void);

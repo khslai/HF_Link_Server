@@ -23,13 +23,12 @@ class UDPServerViewer
 private:
 	int CountFrame;
 	int InsertNum;
-	int State;			// 状態
-	bool InUpdateRank;
-	TextureDrawer *RankingTitle;		// タイトル
-	RankViewer* InsertTemp;				// 追加予定のオブジェクト
-	std::vector<RankViewer*> Ranking;	// ランキング
-
+	int State;								// 状態
+	TextureDrawer *RankingTitle;			// タイトル
 	TextureDrawer *ExpandTexture;			// ランク追加時に演出用のテクスチャ
+	RankViewer* InsertTemp;					// 追加予定のランキングビューア
+	std::vector<RankViewer*> Ranking;		// ランキング
+	std::vector<RankViewer*> InsertStack;	// 追加予定のスタック
 
 	void SortRanking(RankViewer* Rank);
 	void RankingMoveStart(int Num);

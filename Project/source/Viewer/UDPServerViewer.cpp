@@ -14,9 +14,9 @@
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
 
-const int RankingMaxNum = 10;
+const int RankingMaxNum = 7;
 const float RankInterval = 120.0f;
-const D3DXVECTOR3 DefaultPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 250.0f, 0.0f);
+const D3DXVECTOR3 DefaultPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 240.0f, 0.0f);
 
 enum ViewerState
 {
@@ -50,8 +50,9 @@ UDPServerViewer::~UDPServerViewer()
 {
 	SAFE_DELETE(RankingTitle);
 	SAFE_DELETE(ExpandTexture);
-	InsertTemp = nullptr;
+	SAFE_DELETE(InsertTemp);
 	Utility::DeleteContainer(Ranking);
+	Utility::DeleteContainer(InsertStack);
 }
 
 //=============================================================================
@@ -65,13 +66,22 @@ void UDPServerViewer::Update(void)
 
 	if (State == ViewerState::Idle)
 	{
-		// 順番によって、表示座標を設定
-		int Num = 0;
-		for (auto &RankVec : Ranking)
+		if (InsertStack.empty())
 		{
-			RankVec->SetRankNum(Num);
-			RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
-			Num++;
+			// 順番によって、表示座標を設定
+			int Num = 0;
+			for (auto &RankVec : Ranking)
+			{
+				RankVec->SetRankNum(Num);
+				RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
+				Num++;
+			}
+		}
+		else
+		{
+			InsertTemp = InsertStack.at(0);
+			InsertStack.erase(InsertStack.begin());
+			SortRanking(InsertTemp);
 		}
 	}
 	else if (State == ViewerState::Move)
@@ -110,8 +120,10 @@ void UDPServerViewer::Update(void)
 
 			ExpandTexture->SetTextureExpand(Time);
 
+			// 展開終了
 			if (CountFrame == ExpandFrame)
 			{
+				// ランキングに追加
 				RankingInsert();
 				State = ViewerState::Idle;
 			}
@@ -124,13 +136,16 @@ void UDPServerViewer::Update(void)
 //=============================================================================
 void UDPServerViewer::Draw(void)
 {
+	// タイトル
 	RankingTitle->Draw();
 
+	// 展開演出用のテクスチャ
 	if (State == ViewerState::Expand)
 	{
 		ExpandTexture->Draw();
 	}
 
+	// ランキング
 	for (auto & Rank : Ranking)
 	{
 		Rank->Draw();
@@ -142,8 +157,15 @@ void UDPServerViewer::Draw(void)
 //=============================================================================
 void UDPServerViewer::CreateRankViewer(string PlayerName, string AILevel)
 {
-	InsertTemp = new RankViewer(PlayerName, AILevel);
-	SortRanking(InsertTemp);
+	if (InsertTemp == nullptr)
+	{
+		InsertTemp = new RankViewer(PlayerName, AILevel);
+		SortRanking(InsertTemp);
+	}
+	else
+	{
+		InsertStack.push_back(new RankViewer(PlayerName, AILevel));
+	}
 }
 
 //=============================================================================
@@ -158,7 +180,6 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 	{
 		InsertNum = 0;
 		RankingExpand();
-		//Ranking.push_back(Rank);
 	}
 	else
 	{
@@ -170,7 +191,6 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 			// ランキングに追加
 			InsertNum = Ranking.size();
 			RankingExpand();
-			//Ranking.push_back(Rank);
 		}
 		else
 		{
@@ -178,13 +198,13 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 			{
 				unsigned long long AILevelVec = RankVec->GetAILevel();
 
-				// スコアの比較x
+				// スコアの比較
 				if (AILevel > AILevelVec)
 				{
 					RankingMoveStart(Num);
 					break;
 				}
-				else if (AILevel == AILevelVec)
+				else if (AILevel == AILevelVec && Ranking.size() < RankingMaxNum)
 				{
 					RankingMoveStart(Num + 1);
 					break;
@@ -202,7 +222,6 @@ void UDPServerViewer::RankingMoveStart(int Num)
 {
 	State = ViewerState::Move;
 	InsertNum = Num;
-	//InsertTemp = InsertRank;
 	CountFrame = 0;
 }
 
@@ -236,7 +255,7 @@ void UDPServerViewer::RankingExpand()
 //=============================================================================
 void UDPServerViewer::RankingInsert(void)
 {
-	InsertTemp->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, RankInterval * InsertNum, 0.0f));
+	InsertTemp->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, InsertNum * RankInterval, 0.0f));
 	Ranking.insert(Ranking.begin() + InsertNum, InsertTemp);
 	InsertTemp = nullptr;
 

@@ -10,7 +10,7 @@
 #include "../String/String.h"
 #include "../Tool/DebugWindow.h"
 #include "../../source/Viewer/UDPServerViewer.h"
-
+#include "../../source/Viewer/EventLiveViewer.h"
 
 
 //*****************************************************************************
@@ -23,7 +23,7 @@ HANDLE UDPServer::Thread;
 //=============================================================================
 UDPServer::UDPServer()
 {
-	Viewer = new UDPServerViewer();
+	RankingViewer = new UDPServerViewer();
 
 	// WinSock初期化
 	WSADATA wsaData;
@@ -48,15 +48,26 @@ UDPServer::UDPServer()
 UDPServer::~UDPServer()
 {
 	// メモリ解放
-	SAFE_DELETE(Viewer);
+	SAFE_DELETE(EventViewer);
+	SAFE_DELETE(RankingViewer);
 	ConnectedList.clear();
-
-	// スレッド解放
-	CloseHandle(Thread);
 
 	// WinSock終了処理
 	closesocket(ServerSocket);
 	WSACleanup();
+
+	// ===============================================================
+	// 注意。きちんとスレッド終了関数(_endthreadex)を呼ばないと
+	// メインスレッドが終了した後に他のスレッドはそのまま実行します
+	// 例外スローの可能性が高い
+	// ===============================================================
+	// スレッドが解放するまで待つ
+	DWORD ThreadResult = WaitForSingleObject(Thread, INFINITE);
+	if (ThreadResult == WAIT_OBJECT_0)
+	{
+		// スレッド終了
+		CloseHandle(Thread);
+	}
 }
 
 //=============================================================================
@@ -64,6 +75,7 @@ UDPServer::~UDPServer()
 //=============================================================================
 void UDPServer::Update(void)
 {
+#if _DEBUG
 	Debug::Begin("UDP Server's Clients");
 	for (auto &Client : ConnectedList)
 	{
@@ -75,24 +87,37 @@ void UDPServer::Update(void)
 
 	Debug::Begin("Ranking Test");
 	if (Debug::Button("Clear"))
-		Viewer->ClearRanking();
+		RankingViewer->ClearRanking();
 	else if (Debug::Button("123"))
-		Viewer->CreateRankViewer("Player", "123");
+		RankingViewer->CreateRankViewer("Player", "123");
 	else if (Debug::Button("123455"))
-		Viewer->CreateRankViewer("Player", "123455");
+		RankingViewer->CreateRankViewer("Player", "123455");
 	else if (Debug::Button("123456"))
-		Viewer->CreateRankViewer("Player", "123456");
+		RankingViewer->CreateRankViewer("Player", "123456");
 	else if (Debug::Button("123457"))
-		Viewer->CreateRankViewer("Player", "123457");
+		RankingViewer->CreateRankViewer("Player", "123457");
 	else if (Debug::Button("123456789"))
-		Viewer->CreateRankViewer("Player", "123456789");
+		RankingViewer->CreateRankViewer("Player", "123456789");
 	else if (Debug::Button("123456789123"))
-		Viewer->CreateRankViewer("Player", "123456789123");
+		RankingViewer->CreateRankViewer("Player", "123456789123");
 	else if (Debug::Button("123456789123456"))
-		Viewer->CreateRankViewer("Player", "123456789123456");
+		RankingViewer->CreateRankViewer("Player", "123456789123456");
 	Debug::End();
+#endif
 
-	Viewer->Update();
+	if (!RankStack.empty())
+	{
+		for (auto &Str : RankStack)
+		{
+			// ランキングビューアを作る
+			// 0番 = プレイヤーの名前、1番 = AIレベル
+			RankingViewer->CreateRankViewer(Str.at(0), Str.at(1));
+			Str.clear();
+		}
+		RankStack.clear();
+	}
+
+	RankingViewer->Update();
 }
 
 
@@ -101,7 +126,7 @@ void UDPServer::Update(void)
 //=============================================================================
 void UDPServer::Draw()
 {
-	Viewer->Draw();
+	RankingViewer->Draw();
 }
 
 //=============================================================================
@@ -109,13 +134,16 @@ void UDPServer::Draw()
 //=============================================================================
 unsigned __stdcall UDPServer::ThreadEntryPoint(void* This)
 {
-	UDPServer* Temp = (UDPServer*)This;		// the tricky cast
-	Temp->ReceivePacket();					// now call the true entry-point-function
-	return 0;								// the thread exit code
+	UDPServer* Temp = (UDPServer*)This;
+	Temp->ReceivePacket();					// 本当のセカンドスレッドの処理関数
+	_endthreadex(0);						// スレッドの実行停止
+	return 0;								
 }
 
 //=============================================================================
 // 受信スレッド
+// できる限り、マルチスレッドの関数に長い時間がかかる処理を書かないように
+// どうしても処理時間が必要そうな場合、WaitForSingleObjectの待つ時間を長くして
 //=============================================================================
 void UDPServer::ReceivePacket(void)
 {
@@ -128,8 +156,18 @@ void UDPServer::ReceivePacket(void)
 	{
 		AddressLength = sizeof(FromAddress);
 
+		// 文字列のクリア
+		memset(data, 0, sizeof(data));
+
 		// メッセージ受信
 		recvfrom(ServerSocket, (char*)data, sizeof(data), 0, (sockaddr*)&FromAddress, &AddressLength);
+
+		// ServerSocketが閉じた後にrecvfromは飛ばされるので
+		// 無限ループから出るための条件式は必要
+		if (strcmp(data, "") == 0)
+		{
+			break;
+		}
 
 #if _DEBUG
 		// 送信元のIPアドレスが既にリストの中かどうかを確認
@@ -161,9 +199,8 @@ void UDPServer::ReceivePacket(void)
 		{
 			SplitedStr.erase(SplitedStr.begin());
 
-			// ビューアにメッセージを設置
-			// 0番 = プレイヤーの名前、1番 = AIレベル
-			Viewer->CreateRankViewer(SplitedStr.at(0),SplitedStr.at(1));
+			// スタックに表示予定のオブジェクトを追加
+			RankStack.push_back(SplitedStr);
 		}
 	}
 }

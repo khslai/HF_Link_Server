@@ -49,7 +49,6 @@ void GameScene::Init()
 	// サーバー受信スレッド設定
 	UDPServer::Thread = (HANDLE)_beginthreadex(NULL, 0, UDPServer::ThreadEntryPoint, Server, 0, NULL);
 
-
 	//ステートマシン作成
 	fsm.resize(State::Max, NULL);
 	fsm[State::Initialize] = new GameInit();
@@ -75,6 +74,9 @@ void GameScene::Uninit()
 
 	//ステートマシン削除
 	Utility::DeleteContainer(fsm);
+
+	// サーバー削除
+	SAFE_DELETE(Server);
 }
 
 /**************************************
