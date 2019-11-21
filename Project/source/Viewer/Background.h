@@ -1,30 +1,31 @@
 //=============================================================================
 //
-// イベント中継クラス [EventLiveViewer.h]
+// 背景クラス [Background.h]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#ifndef _EventLiveViewer_H_
-#define _EventLiveViewer_H_
+#ifndef _Background_H_
+#define _Background_H_
 
 #include <string>
 #include <vector>
 
 using namespace std;
 
-class TextureDrawer;
+class BoardPolygon;
 
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
-class EventLiveViewer
+class Background
 {
 private:
-
+	BoardPolygon *BG;
+	BoardPolygon *Wall;
 
 public:
-	EventLiveViewer();
-	~EventLiveViewer();
+	Background();
+	~Background();
 	void Update(void);
 	void Draw(void);
 };

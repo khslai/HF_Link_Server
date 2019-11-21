@@ -11,6 +11,7 @@
 #include "../Tool/DebugWindow.h"
 #include "../../source/Viewer/UDPServerViewer.h"
 #include "../../source/Viewer/EventLiveViewer.h"
+#include "../../source/Viewer/Background.h"
 
 
 //*****************************************************************************
@@ -23,6 +24,7 @@ HANDLE UDPServer::Thread;
 //=============================================================================
 UDPServer::UDPServer()
 {
+	background = new Background();
 	RankingViewer = new UDPServerViewer();
 
 	// WinSock‰Šú‰»
@@ -48,6 +50,7 @@ UDPServer::UDPServer()
 UDPServer::~UDPServer()
 {
 	// ƒƒ‚ƒŠ‰ð•ú
+	SAFE_DELETE(background);
 	SAFE_DELETE(EventViewer);
 	SAFE_DELETE(RankingViewer);
 	ConnectedList.clear();
@@ -126,6 +129,8 @@ void UDPServer::Update(void)
 //=============================================================================
 void UDPServer::Draw()
 {
+	background->Draw();
+
 	RankingViewer->Draw();
 }
 

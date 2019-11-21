@@ -330,6 +330,9 @@
     <ClCompile Include="source\Viewer\EventLiveViewer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="source\Viewer\Background.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Scene\GameState\GameIdle.h">
@@ -698,6 +701,9 @@
     <ClInclude Include="source\Viewer\EventLiveViewer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="source\Viewer\Background.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
@@ -714,5 +720,9 @@
     <ResourceCompile Include="HF_Link_Server.rc">
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Sprite.fx" />
+    <FxCompile Include="Shaders\particle3D.fx" />
   </ItemGroup>
 </Project>

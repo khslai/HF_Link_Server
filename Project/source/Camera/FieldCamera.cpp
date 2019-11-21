@@ -13,21 +13,15 @@
 コンストラクタ
 ***************************************/
 FieldCamera::FieldCamera() :
-	//targetObject(NULL),
-	startPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),
-	goalPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f)), 
+	//startPosition(D3DXVECTOR3(0.0f, 10.0f, 0.0f)),
+	//goalPosition(D3DXVECTOR3(0.0f, 10.0f, 0.0f)), 
+	//TargetPos(D3DXVECTOR3(0.0f, 0.0f, 20.0f)), 
 	cntFrame(0),
 	currentMode(Mode::FrontSide)
 {
-	////パラメータ設定
-	//const float CameraAngleXZ = D3DXToRadian(45.0f);
-	//const float CameraAngleY = D3DXToRadian(60.0f);
-	//const float CameraLength = 50.0f;
-
-	//const D3DXVECTOR3 InitPos = D3DXVECTOR3(
-	//	cosf(CameraAngleY) * cosf(CameraAngleXZ),
-	//	sinf(CameraAngleY),
-	//	cosf(CameraAngleY) * -sinf(CameraAngleXZ)) * CameraLength;
+	const D3DXVECTOR3 InitPos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+	target = D3DXVECTOR3(0.0f, 10.0f, 50.0f);
+	transform.SetPosition(InitPos);
 
 	//ステートマシン作成
 	fsm.resize(Mode::Max);

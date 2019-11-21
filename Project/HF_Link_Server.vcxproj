@@ -227,6 +227,7 @@
     <ClCompile Include="source\Scene\GameScene.cpp" />
     <ClCompile Include="source\Scene\GameState\GameIdle.cpp" />
     <ClCompile Include="source\Scene\GameState\GameInit.cpp" />
+    <ClCompile Include="source\Viewer\Background.cpp" />
     <ClCompile Include="source\Viewer\EventLiveViewer.cpp" />
     <ClCompile Include="source\Viewer\RankViewer.cpp" />
     <ClCompile Include="source\Viewer\TextureDrawer.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="source\Scene\GameScene.h" />
     <ClInclude Include="source\Scene\GameState\GameIdle.h" />
     <ClInclude Include="source\Scene\GameState\GameInit.h" />
+    <ClInclude Include="source\Viewer\Background.h" />
     <ClInclude Include="source\Viewer\EventLiveViewer.h" />
     <ClInclude Include="source\Viewer\RankViewer.h" />
     <ClInclude Include="source\Viewer\TextureDrawer.h" />
@@ -365,6 +367,16 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HF_Link_Server.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\particle3D.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">2.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\Sprite.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">2.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

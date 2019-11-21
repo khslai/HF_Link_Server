@@ -19,6 +19,7 @@
 #include "../../Framework/Core/SceneManager.h"
 #include "../../Framework/Resource/ResourceManager.h"
 #include "../../Framework/Network/UDPServer.h"
+#include "../../Framework/Effect/SpriteEffect.h"
 
 /**************************************
 staticメンバ
@@ -86,6 +87,10 @@ void GameScene::Update()
 {
 	//カメラ更新
 	fieldCamera->Update();
+
+	//カメラの情報をエフェクトに渡す
+	SpriteEffect::SetView(fieldCamera->GetViewMtx());
+	SpriteEffect::SetProjection(fieldCamera->GetProjectionMtx());
 
 	for (auto &Actor : PlaceActorContainer)
 	{

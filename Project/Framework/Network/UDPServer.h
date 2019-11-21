@@ -12,6 +12,7 @@
 
 using namespace std;
 
+class Background;
 class UDPServerViewer;
 class EventLiveViewer;
 //*****************************************************************************
@@ -20,6 +21,7 @@ class EventLiveViewer;
 class UDPServer
 {
 private:
+	Background *background;
 	EventLiveViewer *EventViewer;			// イベント中継ビューア
 	UDPServerViewer *RankingViewer;			// ランキング表示ビューア
 	SOCKET ServerSocket;
