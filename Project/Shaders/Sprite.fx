@@ -12,10 +12,7 @@ float4x4 mtxWorld;		//ワールド変換行列
 float4x4 mtxView;		//ビュー行列
 float4x4 mtxProj;		//プロジェクション行列
 float4x4 mtxScreenProj;	//2D用のプロジェクション行列
-
 float2 texUV;			//テクスチャのUV座標
-
-float4 diffuse;			//マテリアルのディフューズ
 
 /**************************************************************
 テクスチャサンプラー（0番にSetTextureしたテクスチャを使用する
@@ -28,6 +25,7 @@ sampler s0 : register(s0);
 struct VS_OUTPUT {
 	float4 pos : POSITION;
 	float2 uv : TEXCOORD0;
+	float4 color : COLOR0;
 };
 
 /**************************************************************
@@ -35,7 +33,8 @@ struct VS_OUTPUT {
 ***************************************************************/
 VS_OUTPUT VS_3D(
 	float3 pos : POSITION,
-	float2 localUV : TEXCOORD0)
+	float2 localUV : TEXCOORD0,
+	float4 Diffuse : COLOR0)
 {
 	VS_OUTPUT Out = (VS_OUTPUT)0;
 
@@ -45,6 +44,8 @@ VS_OUTPUT VS_3D(
 
 	Out.uv = localUV + texUV;
 
+	Out.color = Diffuse;
+
 	return Out;
 }
 
@@ -53,7 +54,8 @@ VS_OUTPUT VS_3D(
 ***************************************************************/
 VS_OUTPUT VS_2D(
 	float3 pos : POSITION,
-	float2 localUV : TEXCOORD0)
+	float2 localUV : TEXCOORD0,
+	float4 Diffuse : COLOR0)
 {
 	VS_OUTPUT Out = (VS_OUTPUT)0;
 
@@ -61,6 +63,8 @@ VS_OUTPUT VS_2D(
 	Out.pos = mul(Out.pos, mtxScreenProj);
 
 	Out.uv = localUV + texUV;
+
+	Out.color = Diffuse;
 
 	return Out;
 }
@@ -70,7 +74,7 @@ VS_OUTPUT VS_2D(
 ***************************************************************/
 float4 PS(VS_OUTPUT In) : COLOR0
 {
-	return tex2D(s0, In.uv) * diffuse;
+	return tex2D(s0, In.uv) * In.color;
 }
 
 /**************************************************************

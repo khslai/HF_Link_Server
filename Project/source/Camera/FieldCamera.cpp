@@ -19,9 +19,9 @@ FieldCamera::FieldCamera() :
 	cntFrame(0),
 	currentMode(Mode::FrontSide)
 {
-	const D3DXVECTOR3 InitPos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
-	target = D3DXVECTOR3(0.0f, 10.0f, 50.0f);
-	transform.SetPosition(InitPos);
+	//const D3DXVECTOR3 InitPos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+	//target = D3DXVECTOR3(0.0f, 10.0f, 50.0f);
+	//transform.SetPosition(InitPos);
 
 	//ステートマシン作成
 	fsm.resize(Mode::Max);

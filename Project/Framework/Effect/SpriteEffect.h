@@ -36,9 +36,6 @@ public:
 	//ワールド変換行列設定処理
 	void SetWorld(const D3DXMATRIX& mtxWorld);
 
-	//ディフューズ設定処理
-	void SetDiffuse(const D3DXCOLOR& color);
-
 	//テクスチャ分割数設定処理
 	void SetTextureDivine(const D3DXVECTOR2& divine);
 
@@ -57,7 +54,6 @@ public:
 private:
 	LPD3DXEFFECT effect;				//シェーダエフェクト
 
-	D3DXCOLOR diffuse;					//ディフューズ
 	D3DXVECTOR2 texDiv;					//テクスチャ分割数
 	D3DXVECTOR2 texSize;				//分割したテクスチャのサイズ
 	D3DXVECTOR2 uv;						//UV座標
@@ -72,6 +68,5 @@ private:
 	D3DXHANDLE hMtxProj;
 	D3DXHANDLE hMtxScreenProj;
 	D3DXHANDLE hTexUV;
-	D3DXHANDLE hDiffuse;
 };
 #endif

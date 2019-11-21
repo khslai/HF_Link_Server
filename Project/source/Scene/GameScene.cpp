@@ -88,6 +88,12 @@ void GameScene::Update()
 	//カメラ更新
 	fieldCamera->Update();
 
+	D3DXVECTOR3 LeftUp = Camera::UnProjection(D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f);
+	D3DXVECTOR3 RightUp = Camera::UnProjection(D3DXVECTOR3(SCREEN_WIDTH, 0.0f, 0.0f), 0.0f);
+	D3DXVECTOR3 LeftDown = Camera::UnProjection(D3DXVECTOR3(0.0f, SCREEN_HEIGHT, 0.0f), 0.0f);
+	D3DXVECTOR3 RightDown = Camera::UnProjection(D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f), 0.0f);
+	D3DXVECTOR3 LeftCenter = Camera::UnProjection(D3DXVECTOR3(0.0f, SCREEN_CENTER_Y, 0.0f), 0.0f);
+
 	//カメラの情報をエフェクトに渡す
 	SpriteEffect::SetView(fieldCamera->GetViewMtx());
 	SpriteEffect::SetProjection(fieldCamera->GetProjectionMtx());

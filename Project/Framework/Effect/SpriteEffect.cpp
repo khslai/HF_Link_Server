@@ -20,7 +20,6 @@ D3DXMATRIX SpriteEffect::mtxScreenProj;
 ***************************************/
 SpriteEffect::SpriteEffect(const D3DXVECTOR2 & texDiv) :
 	effect(nullptr),
-	diffuse(1.0f, 1.0f, 1.0f, 1.0f),
 	texDiv(texDiv),
 	texSize(1.0f / texDiv.x, 1.0f / texDiv.y),
 	uv(0.0f, 0.0f)
@@ -34,7 +33,6 @@ SpriteEffect::SpriteEffect(const D3DXVECTOR2 & texDiv) :
 	hMtxProj = effect->GetParameterByName(0, "mtxProj");
 	hMtxScreenProj = effect->GetParameterByName(0, "mtxScreenProj");
 	hTexUV = effect->GetParameterByName(0, "texUV");
-	hDiffuse = effect->GetParameterByName(0, "diffuse");
 }
 
 /**************************************
@@ -85,7 +83,6 @@ void SpriteEffect::Commit()
 	effect->SetMatrix(hMtxView, &mtxView);
 	effect->SetMatrix(hMtxProj, &mtxProjection);
 	effect->SetMatrix(hMtxScreenProj, &mtxScreenProj);
-	effect->SetFloatArray(hDiffuse, (float*)&diffuse, 4);
 	effect->SetFloatArray(hTexUV, (float*)&uv, 2);
 	effect->CommitChanges();
 }
@@ -96,14 +93,6 @@ void SpriteEffect::Commit()
 void SpriteEffect::SetWorld(const D3DXMATRIX & mtxWorld)
 {
 	effect->SetMatrix(hMtxWorld, &mtxWorld);
-}
-
-/**************************************
-ディフューズ設定処理
-***************************************/
-void SpriteEffect::SetDiffuse(const D3DXCOLOR & color)
-{
-	diffuse = color;
 }
 
 /**************************************

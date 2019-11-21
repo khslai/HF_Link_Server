@@ -19,15 +19,15 @@ PolygonResource::PolygonResource(const D3DXVECTOR2 & size, const D3DXVECTOR2 & u
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	//頂点バッファ作成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_MATERIAL) * NUM_VERTEX,
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX,
 		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_MATERIAL,
+		FVF_VERTEX_3D,
 		D3DPOOL_MANAGED,
 		&vtxBuff,
 		0);
 
 	//頂点バッファ初期化
-	VERTEX_MATERIAL *pVtx;
+	VERTEX_3D *pVtx;
 	vtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	pVtx[0].vtx = D3DXVECTOR3(-size.x, size.y, 0.0f);
@@ -40,10 +40,15 @@ PolygonResource::PolygonResource(const D3DXVECTOR2 & size, const D3DXVECTOR2 & u
 	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f / uv.y);
 	pVtx[3].tex = D3DXVECTOR2(1.0f / uv.x, 1.0f / uv.y);
 
-	pVtx[0].nor =
-		pVtx[1].nor =
-		pVtx[2].nor =
-		pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+
+	pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	vtxBuff->Unlock();
 

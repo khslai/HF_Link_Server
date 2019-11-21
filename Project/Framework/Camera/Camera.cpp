@@ -18,8 +18,8 @@ Camera* Camera::mainCamera = NULL;
 ***************************************/
 Camera::Camera()
 {
-	const D3DXVECTOR3 InitPos = D3DXVECTOR3(0.0f, 50.0f, 50.0f);
-	const D3DXVECTOR3 InitTarget = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	const D3DXVECTOR3 InitPos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+	const D3DXVECTOR3 InitTarget = D3DXVECTOR3(0.0f, 10.0f, 100.0f);
 	const float InitViewAngle = D3DXToRadian(60.0f);
 	const float InitViewAspect = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	const float InitViewNear = 10.0f;
@@ -38,6 +38,29 @@ Camera::Camera()
 	viewport._41 = SCREEN_WIDTH / 2.0f;
 	viewport._42 = SCREEN_HEIGHT / 2.0f;
 
+	upWork = transform.Up();
+
+	//ビュー行列作成
+	D3DXMatrixIdentity(&view);
+	D3DXMatrixLookAtLH(&view,
+		&InitPos,
+		&target,
+		&upWork);
+
+	//プロジェクション行列作成
+	D3DXMatrixIdentity(&projection);
+	D3DXMatrixPerspectiveFovLH(&projection,
+		viewAngle,
+		viewAspect,
+		viewNear,
+		viewFar);
+
+	//変換行列を計算
+	VPV = view * projection * viewport;
+
+	//逆行列を計算
+	D3DXMatrixInverse(&invView, NULL, &view);
+	D3DXMatrixInverse(&invProjection, NULL, &projection);
 	D3DXMatrixInverse(&invVPV, NULL, &VPV);
 
 	Set();
@@ -159,7 +182,7 @@ D3DXVECTOR3 Camera::Projection(const D3DXVECTOR3& pos) const
 /**************************************
 スクリーン逆投影処理
 ***************************************/
-D3DXVECTOR3 Camera::UnProjection(const D3DXVECTOR3& pos, float z) const
+D3DXVECTOR3 Camera::UnProjection(const D3DXVECTOR3& pos, float z)
 {
 	D3DXVECTOR3 out;
 	D3DXVec3TransformCoord(&out, &D3DXVECTOR3(pos.x, pos.y, z), &mainCamera->invVPV);

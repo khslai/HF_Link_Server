@@ -13,6 +13,7 @@
 マクロ定義
 ***************************************/
 
+
 /**************************************
 コンストラクタ
 ***************************************/
@@ -44,12 +45,12 @@ void BoardPolygon::Draw(const D3DXMATRIX& mtxWorld)
 {
 	effect->SetWorld(mtxWorld);
 	effect->Commit();
-
+	
 	pDevice->SetTexture(0, texture);
 
-	pDevice->SetStreamSource(0, vtxBuff, 0, sizeof(VERTEX_MATERIAL));
+	pDevice->SetStreamSource(0, vtxBuff, 0, sizeof(VERTEX_3D));
 
-	pDevice->SetFVF(FVF_VERTEX_MATERIAL);
+	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	effect->Begin();
 	effect->BeginPass(0);
@@ -79,5 +80,13 @@ void BoardPolygon::SetTextureIndex(int index)
 ***************************************/
 void BoardPolygon::SetDiffuse(const D3DXCOLOR & color)
 {
-	effect->SetDiffuse(color);
+	VERTEX_3D *pVtx;
+	vtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	pVtx[0].diffuse = color;
+	pVtx[1].diffuse = color;
+	pVtx[2].diffuse = color;
+	pVtx[3].diffuse = color;
+
+	vtxBuff->Unlock();
 }

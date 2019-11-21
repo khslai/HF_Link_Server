@@ -108,6 +108,8 @@ void UDPServer::Update(void)
 	Debug::End();
 #endif
 
+	background->Update();
+
 	if (!RankStack.empty())
 	{
 		for (auto &Str : RankStack)

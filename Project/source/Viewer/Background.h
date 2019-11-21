@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class BoardPolygon;
+class PolygonDrawer;
 
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
@@ -20,8 +20,13 @@ class BoardPolygon;
 class Background
 {
 private:
-	BoardPolygon *BG;
-	BoardPolygon *Wall;
+	int CountFrame;
+
+	PolygonDrawer *BG;
+	PolygonDrawer *LeftWall;
+	PolygonDrawer *RightWall;
+	PolygonDrawer *Ground;
+
 
 public:
 	Background();

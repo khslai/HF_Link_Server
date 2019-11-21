@@ -15,7 +15,7 @@ void FieldCamera::FieldCameraFront::OnStart(FieldCamera & entity)
 {
 	//パラメータ初期化
 	//entity.startPosition = entity.transform.GetPosition() - entity.target;
-	entity.cntFrame = 0;
+	//entity.cntFrame = 0;
 	//entity.startTarget = entity.target;
 
 	//移動先の座標を設定
@@ -36,7 +36,7 @@ void FieldCamera::FieldCameraFront::OnStart(FieldCamera & entity)
 ***************************************/
 FieldCamera::Mode FieldCamera::FieldCameraFront::OnUpdate(FieldCamera & entity)
 {
-	entity.cntFrame++;
+	//entity.cntFrame++;
 
 	//イージングで移動
 	//const float MoveDuration = 30;

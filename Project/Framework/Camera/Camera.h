@@ -43,7 +43,7 @@ public:
 	D3DXVECTOR3 Projection(const D3DXVECTOR3& pos) const;
 
 	//与えたスクリーン座標をワールド座標に変換する関数
-	D3DXVECTOR3 UnProjection(const D3DXVECTOR3& pos, float z) const;
+	static D3DXVECTOR3 UnProjection(const D3DXVECTOR3& pos, float z);
 
 	//ビュー行列取得処理
 	D3DXMATRIX GetViewMtx() const;
