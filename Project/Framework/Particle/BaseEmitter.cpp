@@ -55,6 +55,17 @@ BaseEmitter::BaseEmitter(int emitNum, int duration) :
 /**************************************
 コンストラクタ
 ***************************************/
+BaseEmitter::BaseEmitter(int emitNum, bool EmitInfinite) :
+	GameObject(false),
+	emitNum(emitNum),
+	EmitInfinite(true)
+{
+
+}
+
+/**************************************
+コンストラクタ
+***************************************/
 BaseEmitter::BaseEmitter(int emitNum, int durationMin, int durationMax) :
 	GameObject(false),
 	emitNum(emitNum),
@@ -144,6 +155,8 @@ bool BaseEmitter::IsActive() const
 {
 	if (!active)
 		return false;
+	else if (EmitInfinite)
+		return true;
 
 	return cntFrame <= duration;
 }

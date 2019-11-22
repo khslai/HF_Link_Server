@@ -224,6 +224,7 @@
     <ClCompile Include="source\Camera\FieldCamera.cpp" />
     <ClCompile Include="source\Camera\State\FieldCameraFront.cpp" />
     <ClCompile Include="source\Effect\GameParticleManager.cpp" />
+    <ClCompile Include="source\Effect\Game\BlueDebris.cpp" />
     <ClCompile Include="source\Effect\Game\ExpandEffect.cpp" />
     <ClCompile Include="source\EventActorBase.cpp" />
     <ClCompile Include="source\GameMain.cpp" />
@@ -349,6 +350,7 @@
     <ClInclude Include="source\Camera\FieldCamera.h" />
     <ClInclude Include="source\Camera\State\FieldCameraFront.h" />
     <ClInclude Include="source\Effect\GameParticleManager.h" />
+    <ClInclude Include="source\Effect\Game\BlueDebris.h" />
     <ClInclude Include="source\Effect\Game\ExpandEffect.h" />
     <ClInclude Include="source\EventActorBase.h" />
     <ClInclude Include="source\GameConfig.h" />

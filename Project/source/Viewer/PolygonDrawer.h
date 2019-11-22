@@ -9,6 +9,14 @@
 
 #include "../../Framework/Renderer3D/BoardPolygon.h"
 
+enum MovePolygonType
+{
+	Wall,
+	Ground,
+	Max
+};
+
+
 /**************************************
 クラス定義
 ***************************************/
@@ -21,12 +29,15 @@ private:
 	D3DXVECTOR3 DestPos;	// 移動の目標座標
 	D3DXVECTOR3 StartPos;	// 初期座標
 	bool Movable;			// 移動フラグ
-	float CountFrame;
+	float MoveSpeed;
+
+	void SetPolygonPara(const char* Tag, int Num);
 
 public:
 	//コンストラクタ、デストラクタ
 	PolygonDrawer(const char* Tag, D3DXVECTOR3 Pos);
 	PolygonDrawer(const char* Tag, D3DXVECTOR3 StartPos, D3DXVECTOR3 DestPos);
+	PolygonDrawer(const char* Tag, D3DXVECTOR3 StartPos, D3DXVECTOR3 DestPos, int Num);
 	~PolygonDrawer();
 
 	// 更新処理

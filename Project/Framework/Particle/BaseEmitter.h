@@ -24,6 +24,7 @@ public:
 	BaseEmitter();
 	BaseEmitter(int emitNum);
 	BaseEmitter(int emitNum, int duration);
+	BaseEmitter(int emitNum, bool EmitInfinite);
 	BaseEmitter(int emitNum, int durationMin, int durationMax);
 	BaseEmitter(int emitNumMin, int emitNumMax, int durationMin, int durationMax);
 
@@ -39,6 +40,7 @@ protected:
 	int cntFrame;
 	int duration;
 	int emitNum;
+	bool EmitInfinite = false;
 
 	std::function<void(void)> callback;
 };

@@ -44,6 +44,7 @@ void GameScene::Init()
 	//パーティクル初期化
 	ParticleManager = GameParticleManager::Instance();
 	ParticleManager->Init();
+	ParticleManager->SetBlueDebris(D3DXVECTOR3(0.0f, 10.0f, 30.0f));
 
 	// サーバーの設定
 	Server = new UDPServer();
@@ -135,9 +136,11 @@ void GameScene::Draw()
 		Actor->Draw();
 	}
 
-	Server->Draw();
+	Server->DrawBackground();
 
 	ParticleManager->Draw();
+
+	Server->DrawRanking();
 }
 
 /**************************************

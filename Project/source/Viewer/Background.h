@@ -23,10 +23,9 @@ private:
 	int CountFrame;
 
 	PolygonDrawer *BG;
-	PolygonDrawer *LeftWall;
-	PolygonDrawer *RightWall;
-	PolygonDrawer *Ground;
-
+	vector<PolygonDrawer*> LeftWall;
+	vector<PolygonDrawer*> RightWall;
+	vector<PolygonDrawer*> Ground;
 
 public:
 	Background();

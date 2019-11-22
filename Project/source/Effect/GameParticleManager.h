@@ -19,6 +19,7 @@ namespace GameParticle
 	enum ID
 	{
 		ExpandEffect,		// ランキング展開のエフェクト
+		BlueDebris,			// 青い粒子
 		Max
 	};
 }
@@ -38,6 +39,8 @@ public:
 
 	// ランキング展開のエフェクトセット処理
 	void SetExpandEffect(D3DXVECTOR3 Pos, std::function<void(void)> callback = nullptr);
+	// 青い粒子エフェクトセット処理
+	void SetBlueDebris(D3DXVECTOR3 Pos, std::function<void(void)> callback = nullptr);
 
 private:
 };

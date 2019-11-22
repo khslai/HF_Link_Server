@@ -19,20 +19,30 @@
 //*****************************************************************************
 // スタティック変数宣言
 //*****************************************************************************
-
+const int WallNum = 2;
+const int GroundNum = 8;
 
 //=============================================================================
 // コンストラクタ
 //=============================================================================
 Background::Background()
 {
-	ResourceManager::Instance()->MakePolygon("Background", "data/TEXTURE/Viewer/Background/Background.png", { 10.264f * 5, 5.773f * 5});
-	//ResourceManager::Instance()->MakePolygon("Background", "data/TEXTURE/Viewer/Background/Background.png", { 57.7f, 34.2f});
-	ResourceManager::Instance()->MakePolygon("Wall", "data/TEXTURE/Viewer/Background/Wall.png", { 5.0f, 5.0f });
-	BG = new PolygonDrawer("Background", D3DXVECTOR3(0.0f, 10.0f, 50.0f));
-	LeftWall = new PolygonDrawer("Wall", D3DXVECTOR3(-5.0f, 10.0f, 150.0f), D3DXVECTOR3(-10.264f, 10.0f, -5.0f));
-	RightWall = new PolygonDrawer("Wall", D3DXVECTOR3(5.0f, 10.0f, 150.0f), D3DXVECTOR3(10.264f, 10.0f, -5.0f));
-	RightWall->SetRotation(D3DXVECTOR3(0.0f, 88.0f, 0.0f));
+	ResourceManager::Instance()->MakePolygon("Background", "data/TEXTURE/Viewer/Background/Background.png", { 10.264f * 10, 5.773f * 10 });
+	ResourceManager::Instance()->MakePolygon("Wall", "data/TEXTURE/Viewer/Background/Wall.png", { 8.0f, 4.5f });
+	ResourceManager::Instance()->MakePolygon("Ground", "data/TEXTURE/Viewer/Background/Ground.png", { 10.0f, 10.0f });
+
+	BG = new PolygonDrawer("Background", D3DXVECTOR3(0.0f, 10.0f, 100.0f));
+
+	for (int i = 0; i < WallNum; i++)
+	{
+		LeftWall.push_back(new PolygonDrawer("Wall", D3DXVECTOR3(0.0f, 10.0f, 150.0f), D3DXVECTOR3(-10.264f, 10.0f, -5.0f), i));
+		RightWall.push_back(new PolygonDrawer("Wall", D3DXVECTOR3(0.0f, 10.0f, 150.0f), D3DXVECTOR3(10.264f, 10.0f, -5.0f), i));
+	}
+
+	for (int i = 0; i < GroundNum; i++)
+	{
+		Ground.push_back(new PolygonDrawer("Ground", D3DXVECTOR3(0.0f, 0.0f, 150.0f), D3DXVECTOR3(0.0f, 0.0f, -10.0f), i));
+	}
 }
 
 //=============================================================================
@@ -41,9 +51,9 @@ Background::Background()
 Background::~Background()
 {
 	SAFE_DELETE(BG);
-	SAFE_DELETE(LeftWall);
-	SAFE_DELETE(RightWall);
-	SAFE_DELETE(Ground);
+	Utility::DeleteContainer(LeftWall);
+	Utility::DeleteContainer(RightWall);
+	Utility::DeleteContainer(Ground);
 }
 
 //=============================================================================
@@ -51,8 +61,20 @@ Background::~Background()
 //=============================================================================
 void Background::Update(void)
 {
-	LeftWall->Update();
-	RightWall->Update();
+	for (auto &Polygon : LeftWall)
+	{
+		Polygon->Update();
+	}
+
+	for (auto &Polygon : RightWall)
+	{
+		Polygon->Update();
+	}
+
+	for (auto &Polygon : Ground)
+	{
+		Polygon->Update();
+	}
 }
 
 //=============================================================================
@@ -65,11 +87,25 @@ void Background::Draw(void)
 	//Device->SetRenderState(D3DRS_ZWRITEENABLE, false);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 
-	//BG->Draw();
-	LeftWall->Draw();
-	RightWall->Draw();
+	BG->Draw();
+	for (auto &Polygon : LeftWall)
+	{
+		Polygon->Draw();
+	}
+
+	for (auto &Polygon : RightWall)
+	{
+		Polygon->Draw();
+	}
+
+	for (auto &Polygon : Ground)
+	{
+		Polygon->Draw();
+	}
 
 	//Device->SetRenderState(D3DRS_ZWRITEENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 }

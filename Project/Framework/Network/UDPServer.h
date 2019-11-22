@@ -34,7 +34,8 @@ public:
 	UDPServer();
 	~UDPServer();
 	void Update(void);
-	void Draw(void);
+	void DrawRanking(void);
+	void DrawBackground(void);
 
 	// マルチスレッド用
 	static HANDLE Thread;

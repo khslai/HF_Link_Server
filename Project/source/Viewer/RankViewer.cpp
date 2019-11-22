@@ -32,7 +32,7 @@ RankViewer::RankViewer(string Name, string AILevelStr) :
 	RankDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
 
 	PlayerName = new TextViewer("data/TEXTURE/Viewer/RankingViewer/Text_cinecaption226.ttf", 80);
-	PlayerName->SetColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	PlayerName->SetColor(D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
 	PlayerName->SetText(Name);
 
 	AILevelDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(512.0f, 384.0f));
@@ -88,6 +88,9 @@ void RankViewer::Draw(void)
 	}
 }
 
+//=============================================================================
+// 展開用のテクスチャを作る
+//=============================================================================
 void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 {
 	LPDIRECT3DSURFACE9 OldSurface;
@@ -154,7 +157,7 @@ void RankViewer::SetPosition(D3DXVECTOR3 Pos)
 //=============================================================================
 void RankViewer::SetDrawPosition(void)
 {
-	PlayerName->SetPos((int)(CenterPos.x - 200), (int)(CenterPos.y));
+	PlayerName->SetPos((int)(CenterPos.x - 150), (int)(CenterPos.y));
 	AILevelBasePos = CenterPos + D3DXVECTOR3(30.0f, 0.0f, 0.0f);
 	RankDrawer->SetPosition(CenterPos + D3DXVECTOR3(-500.0f, 0.0f, 0.0f));
 }
