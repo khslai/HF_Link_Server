@@ -89,20 +89,14 @@ void GameScene::Update()
 	//カメラ更新
 	fieldCamera->Update();
 
-	D3DXVECTOR3 LeftUp = Camera::UnProjection(D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f);
-	D3DXVECTOR3 RightUp = Camera::UnProjection(D3DXVECTOR3(SCREEN_WIDTH, 0.0f, 0.0f), 0.0f);
-	D3DXVECTOR3 LeftDown = Camera::UnProjection(D3DXVECTOR3(0.0f, SCREEN_HEIGHT, 0.0f), 0.0f);
-	D3DXVECTOR3 RightDown = Camera::UnProjection(D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f), 0.0f);
-	D3DXVECTOR3 LeftCenter = Camera::UnProjection(D3DXVECTOR3(0.0f, SCREEN_CENTER_Y, 0.0f), 0.0f);
-
 	//カメラの情報をエフェクトに渡す
 	SpriteEffect::SetView(fieldCamera->GetViewMtx());
 	SpriteEffect::SetProjection(fieldCamera->GetProjectionMtx());
 
-	for (auto &Actor : PlaceActorContainer)
-	{
-		Actor->Update();
-	}
+	//for (auto &Actor : PlaceActorContainer)
+	//{
+	//	Actor->Update();
+	//}
 
 	Server->Update();
 
@@ -110,16 +104,8 @@ void GameScene::Update()
 
 	// マルチスレッドの実行を待つ
 	DWORD ThreadResult = WaitForSingleObject(UDPServer::Thread, 1);
-	//if (ThreadResult == WAIT_OBJECT_0)
-	//{
-	//	// スレッド終了
-	//}
-	//else if (ThreadResult == WAIT_TIMEOUT)
-	//{
-	//	// タイムアウト
-	//}
 
-	//ステートを更新
+	// ステートを更新
 	State next = fsm[currentState]->OnUpdate(*this);
 }
 
@@ -131,15 +117,18 @@ void GameScene::Draw()
 	//カメラセット
 	fieldCamera->Set();
 
-	for (auto &Actor : PlaceActorContainer)
-	{
-		Actor->Draw();
-	}
+	//for (auto &Actor : PlaceActorContainer)
+	//{
+	//	Actor->Draw();
+	//}
 
+	// 背景
 	Server->DrawBackground();
 
+	// パーティクル
 	ParticleManager->Draw();
 
+	// ランキング
 	Server->DrawRanking();
 }
 

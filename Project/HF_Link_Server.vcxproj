@@ -72,6 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
@@ -221,6 +222,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="source\Actor\CityActor.cpp" />
     <ClCompile Include="source\Actor\PlaceActor.cpp" />
+    <ClCompile Include="source\Actor\RobotActor.cpp" />
     <ClCompile Include="source\Camera\FieldCamera.cpp" />
     <ClCompile Include="source\Camera\State\FieldCameraFront.cpp" />
     <ClCompile Include="source\Effect\GameParticleManager.cpp" />
@@ -236,6 +238,7 @@
     <ClCompile Include="source\Viewer\PolygonDrawer.cpp" />
     <ClCompile Include="source\Viewer\RankViewer.cpp" />
     <ClCompile Include="source\Viewer\TextureDrawer.cpp" />
+    <ClCompile Include="source\Viewer\Transition.cpp" />
     <ClCompile Include="source\Viewer\UDPServerViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -347,6 +350,7 @@
     <ClInclude Include="source\Actor\CityActor.h" />
     <ClInclude Include="source\Actor\PlaceActor.h" />
     <ClInclude Include="source\Actor\PlaceConfig.h" />
+    <ClInclude Include="source\Actor\RobotActor.h" />
     <ClInclude Include="source\Camera\FieldCamera.h" />
     <ClInclude Include="source\Camera\State\FieldCameraFront.h" />
     <ClInclude Include="source\Effect\GameParticleManager.h" />
@@ -359,10 +363,12 @@
     <ClInclude Include="source\Scene\GameState\GameIdle.h" />
     <ClInclude Include="source\Scene\GameState\GameInit.h" />
     <ClInclude Include="source\Viewer\Background.h" />
+    <ClInclude Include="source\Viewer\BaseViewer.h" />
     <ClInclude Include="source\Viewer\EventLiveViewer.h" />
     <ClInclude Include="source\Viewer\PolygonDrawer.h" />
     <ClInclude Include="source\Viewer\RankViewer.h" />
     <ClInclude Include="source\Viewer\TextureDrawer.h" />
+    <ClInclude Include="source\Viewer\Transition.h" />
     <ClInclude Include="source\Viewer\UDPServerViewer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -376,6 +382,16 @@
     <ResourceCompile Include="HF_Link_Server.rc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shaders\FlashEffect.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">2.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Shaders\particle3D.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">2.0</ShaderModel>

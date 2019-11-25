@@ -8,6 +8,7 @@
 #ifndef _GAMESCENE_H_
 #define _GAMESCENE_H_
 
+#define _CRTDBG_MAP_ALLOC
 #include "../../main.h"
 #include "../../Framework/Core/BaseScene.h"
 #include "../../Framework/Pattern/BaseState.h"

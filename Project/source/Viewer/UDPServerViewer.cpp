@@ -13,6 +13,7 @@
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
+#include "../../Framework/Network/PacketConfig.h"
 
 const int RankingMaxNum = 7;
 const float RankInterval = 120.0f;
@@ -23,7 +24,6 @@ enum ViewerState
 	Idle,
 	Move,
 	Expand,
-	Insert,
 };
 
 //*****************************************************************************
@@ -34,7 +34,8 @@ enum ViewerState
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-UDPServerViewer::UDPServerViewer()
+UDPServerViewer::UDPServerViewer() :
+	InsertTemp(nullptr)
 {
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
 	RankingTitle->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
@@ -129,6 +130,27 @@ void UDPServerViewer::Update(void)
 			}
 		}
 	}
+
+#if _DEBUG
+	Debug::Begin("Ranking Test");
+	if (Debug::Button("Clear"))
+		ClearRanking();
+	else if (Debug::Button("123"))
+		CreateRankViewer("Player", "123");
+	else if (Debug::Button("123455"))
+		CreateRankViewer("Player", "123455");
+	else if (Debug::Button("123456"))
+		CreateRankViewer("Player", "123456");
+	else if (Debug::Button("123457"))
+		CreateRankViewer("Player", "123457");
+	else if (Debug::Button("123456789"))
+		CreateRankViewer("Player", "123456789");
+	else if (Debug::Button("123456789123"))
+		CreateRankViewer("Player", "123456789123");
+	else if (Debug::Button("123456789123456"))
+		CreateRankViewer("Player", "123456789123456");
+	Debug::End();
+#endif
 }
 
 //=============================================================================
@@ -153,7 +175,7 @@ void UDPServerViewer::Draw(void)
 }
 
 //=============================================================================
-// 受信スレッド(マルチスレッド用)
+// パケットの内容を処理
 //=============================================================================
 void UDPServerViewer::CreateRankViewer(string PlayerName, string AILevel)
 {
@@ -165,6 +187,28 @@ void UDPServerViewer::CreateRankViewer(string PlayerName, string AILevel)
 	else
 	{
 		InsertStack.push_back(new RankViewer(PlayerName, AILevel));
+	}
+}
+
+//=============================================================================
+// パケットの内容を処理
+//=============================================================================
+void UDPServerViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
+{
+	if (PacketType != Packet::Viewer::ShowRanking)
+		return;
+
+	string Name = SpliteStr.at(Packet::Rank::PlayerName);
+	string AILevel = SpliteStr.at(Packet::Rank::AILevel);
+
+	if (InsertTemp == nullptr)
+	{
+		InsertTemp = new RankViewer(Name, AILevel);
+		SortRanking(InsertTemp);
+	}
+	else
+	{
+		InsertStack.push_back(new RankViewer(Name, AILevel));
 	}
 }
 

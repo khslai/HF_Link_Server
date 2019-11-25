@@ -49,3 +49,11 @@ void EventLiveViewer::Draw(void)
 {
 	
 }
+
+//=============================================================================
+// パケットの内容を処理
+//=============================================================================
+void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
+{
+
+}

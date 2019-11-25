@@ -33,7 +33,7 @@ private:
 	D3DXVECTOR2	TextureSize;
 	D3DXVECTOR2 UnitUV;
 	VERTEX_2D Vertex[NUM_VERTEX];
-	LPDIRECT3DTEXTURE9 Texture;
+	LPDIRECT3DTEXTURE9 Texture = nullptr;
 
 	void MakeVertex();
 	void SetVertex();

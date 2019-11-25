@@ -26,8 +26,6 @@ const DataStruct PolygonData[Max] =
 	{20.0f, 0.2f},
 };
 
-
-
 /**************************************
 コンストラクタ
 ***************************************/
@@ -114,6 +112,9 @@ void PolygonDrawer::Draw()
 	BoardPolygon::Draw(WorldMatrix);
 }
 
+/**************************************
+ポリゴンパラメータ設定処理
+***************************************/
 void PolygonDrawer::SetPolygonPara(const char* Tag, int Num)
 {
 	float Interval = 0.0f;

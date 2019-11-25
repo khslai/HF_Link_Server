@@ -9,6 +9,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+// メモリリーク検査用
+//#define _CRTDBG_MAP_ALLOC
+
 
 //*****************************************************************************
 // インクルードファイル
@@ -30,6 +33,14 @@
 #include <stdio.h>
 #include <assert.h>
 #include <process.h>	// MultiThread用
+
+// メモリリーク検査用
+//#include <stdlib.h>
+//#include <crtdbg.h> 
+//#ifdef _DEBUG
+//#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+//#define new DEBUG_NEW
+//#endif
 
 //*****************************************************************************
 // ライブラリのリンク

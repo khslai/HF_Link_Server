@@ -339,6 +339,12 @@
     <ClCompile Include="source\Effect\Game\BlueDebris.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="source\Actor\RobotActor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Transition.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Scene\GameState\GameIdle.h">
@@ -716,6 +722,15 @@
     <ClInclude Include="source\Effect\Game\BlueDebris.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="source\Actor\RobotActor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Transition.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\BaseViewer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
@@ -736,5 +751,6 @@
   <ItemGroup>
     <FxCompile Include="Shaders\Sprite.fx" />
     <FxCompile Include="Shaders\particle3D.fx" />
+    <FxCompile Include="Shaders\FlashEffect.fx" />
   </ItemGroup>
 </Project>

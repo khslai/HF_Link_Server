@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include "BaseViewer.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ class TextureDrawer;
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
 //*****************************************************************************
-class UDPServerViewer
+class UDPServerViewer : public BaseViewer
 {
 private:
 	int CountFrame;
@@ -38,9 +39,11 @@ private:
 public:
 	UDPServerViewer();
 	~UDPServerViewer();
-	void Update(void);
-	void Draw(void);
+	void Update(void) override;
+	void Draw(void) override;
 	void CreateRankViewer(string PlayerName, string AILevel);
+	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
+
 #if _DEBUG
 	void ClearRanking(void);
 #endif

@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include "BaseViewer.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ class TextureDrawer;
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
 //*****************************************************************************
-class EventLiveViewer
+class EventLiveViewer : public BaseViewer
 {
 private:
 
@@ -25,8 +26,9 @@ private:
 public:
 	EventLiveViewer();
 	~EventLiveViewer();
-	void Update(void);
-	void Draw(void);
+	void Update(void) override;
+	void Draw(void) override;
+	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
 };
 
 #endif
