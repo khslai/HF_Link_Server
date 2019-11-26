@@ -21,6 +21,12 @@
 #define SET_COLOR_RIGHTBLUE		(D3DXCOLOR(0.0f,1.0f,1.0f,1.0f))
 #define SET_COLOR_ORANGE		(D3DXCOLOR(1.0f,0.4f,0.0f,1.0f))
 
+enum TexExpandType
+{
+	LeftToRight,
+	Expand_UpDown,
+};
+
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
 //*****************************************************************************
@@ -49,8 +55,12 @@ public:
 	void SetAlpha(float alpha);
 	void SetColor(D3DXCOLOR color);
 	void SetPosition(D3DXVECTOR3 Pos);
-	void SetTexture(int UnitNo);
-	void SetTextureExpand(float Time);
+	void SetTexture(int Index);
+	void TexExpand_LeftToRight(float Time);
+	void TexExpand_ToUpDown(float Time);
+	void TexExpand_ToUpDown(float Time, int Index);
+
+
 };
 
 #endif

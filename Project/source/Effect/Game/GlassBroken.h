@@ -1,11 +1,11 @@
 //=====================================
 //
-// ランキング展開エフェクト処理[ExpandEffect.h]
+// スクリーン割れるエフェクト処理[GlassBroken.h]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=====================================
-#ifndef _ExpandEffect_H_
-#define _ExpandEffect_H_
+#ifndef _GlassBroken_H_
+#define _GlassBroken_H_
 
 #include "../../../main.h"
 #include "../../../Framework/Particle/2D/Particle2D.h"
@@ -14,23 +14,22 @@
 namespace Effect::Game
 {
 	/**************************************
-	ExpandEffectControllerクラス
+	GlassBrokenControllerクラス
 	***************************************/
-	class ExpandEffectController : public BaseParticleController
+	class GlassBrokenController : public BaseParticleController
 	{
 	public:
-		ExpandEffectController();
-		//bool Draw(void) override;
+		GlassBrokenController();
 	};
 
 	/**************************************
-	ExpandEffectクラス
+	GlassBrokenクラス
 	***************************************/
-	class ExpandEffect : public Particle2D
+	class GlassBroken : public Particle2D
 	{
 	public:
-		ExpandEffect();
-		~ExpandEffect();
+		GlassBroken();
+		~GlassBroken();
 
 		void Init();
 		void Update();

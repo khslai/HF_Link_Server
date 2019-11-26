@@ -20,6 +20,8 @@ namespace GameParticle
 	{
 		ExpandEffect,		// ランキング展開のエフェクト
 		BlueDebris,			// 青い粒子
+		GlassShards,		// ガラス破片
+		GlassBroken,		// スクリーン割れる
 		Max
 	};
 }
@@ -35,14 +37,17 @@ public:
 	void Init() override;
 
 	//描画処理
-	void Draw() override;
+	void Draw3DParticle() override;
+	void Draw2DParticle() override;
 
 	// ランキング展開のエフェクトセット処理
 	void SetExpandEffect(D3DXVECTOR3 Pos, std::function<void(void)> callback = nullptr);
 	// 青い粒子エフェクトセット処理
 	void SetBlueDebris(D3DXVECTOR3 Pos, std::function<void(void)> callback = nullptr);
+	// ガラス破片エフェクトセット処理
+	void SetGlassShards(D3DXVECTOR3 Pos = D3DXVECTOR3(0.0f,0.0f,0.0f), std::function<void(void)> callback = nullptr);
 
-private:
+
 };
 
 #endif

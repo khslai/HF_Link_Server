@@ -25,13 +25,24 @@ const int GroundNum = 8;
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-Background::Background()
+Background::Background() :
+	CountFrame(0),
+	CurrentBG(Background::BGType::Rank),
+	PrevBG(0),
+	BGChange(false)
 {
-	ResourceManager::Instance()->MakePolygon("Background", "data/TEXTURE/Viewer/Background/Background.png", { 10.264f * 10, 5.773f * 10 });
+	ResourceManager::Instance()->MakePolygon("Background_Rank", "data/TEXTURE/Viewer/Background/Background_Rank.png", { 10.264f * 10, 5.773f * 10 });
+	ResourceManager::Instance()->MakePolygon("Background_Event", "data/TEXTURE/Viewer/Background/Background_Event.png", { 10.264f * 10, 5.773f * 10 });
+	ResourceManager::Instance()->MakePolygon("Background_LevelUp", "data/TEXTURE/Viewer/Background/Background_LevelUp.png", { 10.264f * 10, 5.773f * 10 });
 	ResourceManager::Instance()->MakePolygon("Wall", "data/TEXTURE/Viewer/Background/Wall.png", { 8.0f, 4.5f });
 	ResourceManager::Instance()->MakePolygon("Ground", "data/TEXTURE/Viewer/Background/Ground.png", { 10.0f, 10.0f });
 
-	BG = new PolygonDrawer("Background", D3DXVECTOR3(0.0f, 10.0f, 100.0f));
+	background.reserve(Background::BGType::Max);
+	background.push_back(new PolygonDrawer("Background_Rank", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
+	background.push_back(new PolygonDrawer("Background_Event", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
+	background.at(Background::BGType::Event)->SetAlpha(0.0f);
+	background.push_back(new PolygonDrawer("Background_LevelUp", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
+	background.at(Background::BGType::LevelUp)->SetAlpha(0.0f);
 
 	for (int i = 0; i < WallNum; i++)
 	{
@@ -50,7 +61,7 @@ Background::Background()
 //=============================================================================
 Background::~Background()
 {
-	SAFE_DELETE(BG);
+	Utility::DeleteContainer(background);
 	Utility::DeleteContainer(LeftWall);
 	Utility::DeleteContainer(RightWall);
 	Utility::DeleteContainer(Ground);
@@ -61,6 +72,21 @@ Background::~Background()
 //=============================================================================
 void Background::Update(void)
 {
+	if (BGChange)
+	{
+		CountFrame++;
+		float Time = (float)CountFrame / 60;
+		//D3DXCOLOR Color = Easing::EaseValue(Time, PreColor, DestColor, EaseType::Linear);
+		float Alpha = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::Linear);
+		background.at(PrevBG)->SetAlpha(1.0f - Alpha);
+		background.at(CurrentBG)->SetAlpha(Alpha);
+
+		if (CountFrame >= 60)
+		{
+			BGChange = false;
+		}
+	}
+
 	for (auto &Polygon : LeftWall)
 	{
 		Polygon->Update();
@@ -89,7 +115,11 @@ void Background::Draw(void)
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 
-	BG->Draw();
+	for (auto &Polygon : background)
+	{
+		Polygon->Draw();
+	}
+
 	for (auto &Polygon : LeftWall)
 	{
 		Polygon->Draw();
@@ -108,4 +138,27 @@ void Background::Draw(void)
 	//Device->SetRenderState(D3DRS_ZWRITEENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+}
+
+//=============================================================================
+// 背景のトランジション
+//=============================================================================
+void Background::SetBGTransition(int NextBG)
+{
+	this->PrevBG = CurrentBG;
+	this->CurrentBG = NextBG;
+	CountFrame = 0;
+	BGChange = true;
+}
+
+//=============================================================================
+// ランキングの背景に復帰
+//=============================================================================
+void Background::RecoveryBGColor(void)
+{
+	PrevBG = CurrentBG;
+	CurrentBG = Background::BGType::Rank;
+
+	CountFrame = 0;
+	BGChange = true;
 }

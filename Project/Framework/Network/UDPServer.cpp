@@ -9,10 +9,13 @@
 #include "PacketConfig.h"
 #include "../String/String.h"
 #include "../Tool/DebugWindow.h"
+#include "../Task/TaskManager.h"
 #include "../../source/Viewer/UDPServerViewer.h"
 #include "../../source/Viewer/EventLiveViewer.h"
 #include "../../source/Viewer/Background.h"
 #include "../../source/Viewer/Transition.h"
+#include "../../source/Effect/GameParticleManager.h"
+
 
 #include "../Input/input.h"
 
@@ -28,7 +31,6 @@ UDPServer::UDPServer() :
 	Current(State::Ranking)
 {
 	background = new Background();
-	//RankingViewer = new UDPServerViewer();
 	transition = new Transition();
 
 	ViewerContainer.resize(State::Max);
@@ -98,25 +100,26 @@ void UDPServer::Update(void)
 	}
 	Debug::End();
 
-	if (Keyboard::GetTrigger(DIK_F))
+	Debug::Begin("ViewerChange");
+	if (Debug::Button("EventViewer"))
 	{
+		// エフェクト
+		GameParticleManager::Instance()->SetGlassShards();
 		CreateViewerTexture();
-		transition->SetTransition();
-		Current = State::Event;
+		TaskManager::Instance()->CreateDelayedTask(60, [&]()
+		{
+			transition->SetTransition();
+			background->SetBGTransition(State::Event);
+			Current = State::Event;
+		});
 	}
-	if (Keyboard::GetTrigger(DIK_G))
+	else if (Debug::Button("RankingViewer"))
 	{
+		background->RecoveryBGColor();
 		Current = State::Ranking;
 	}
-	if (Keyboard::GetTrigger(DIK_D))
-	{
-		vector<string> Test;
-		Test.push_back("これはLink専用の通信パケットです");
-		Test.push_back("1");
-		Test.push_back("Potato");
-		Test.push_back("118486132189");
-		RankStack.push_back(Test);
-	}
+	Debug::End();
+
 #endif
 
 	if (Current == State::Ranking)
@@ -139,8 +142,6 @@ void UDPServer::Update(void)
 	transition->Update();
 
 	ViewerContainer.at(Current)->Update();
-	//RankingViewer->Update();
-
 }
 
 
@@ -152,7 +153,6 @@ void UDPServer::DrawRanking()
 	if (!transition->InActive())
 	{
 		ViewerContainer.at(Current)->Draw();
-		//RankingViewer->Draw();
 	}
 	else
 	{

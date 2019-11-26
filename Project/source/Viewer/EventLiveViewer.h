@@ -21,7 +21,10 @@ class TextureDrawer;
 class EventLiveViewer : public BaseViewer
 {
 private:
-
+	int CountFrame;
+	bool InActive;
+	TextureDrawer *Background;
+	TextureDrawer *EventMessage;
 
 public:
 	EventLiveViewer();

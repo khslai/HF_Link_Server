@@ -21,8 +21,11 @@ class Background
 {
 private:
 	int CountFrame;
+	bool BGChange;
+	int PrevBG;
+	int CurrentBG;
 
-	PolygonDrawer *BG;
+	vector<PolygonDrawer*> background;
 	vector<PolygonDrawer*> LeftWall;
 	vector<PolygonDrawer*> RightWall;
 	vector<PolygonDrawer*> Ground;
@@ -32,6 +35,16 @@ public:
 	~Background();
 	void Update(void);
 	void Draw(void);
+	void SetBGTransition(int NextBG);
+	void RecoveryBGColor(void);
+
+	enum BGType
+	{
+		Rank,
+		Event,
+		LevelUp,
+		Max
+	};
 };
 
 #endif

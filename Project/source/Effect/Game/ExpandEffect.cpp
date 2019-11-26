@@ -17,7 +17,7 @@ namespace Effect::Game
 	{
 		//単位頂点バッファ作成
 		//スクリーン座標で扱うのでYサイズをマイナスにすることに注意
-		const D3DXVECTOR2 SizeParticle{ 50.0f, -50.0f};
+		const D3DXVECTOR2 SizeParticle{ 50.0f, -50.0f };
 		MakeUnitBuffer(SizeParticle);
 
 		//テクスチャ読み込み
@@ -46,21 +46,21 @@ namespace Effect::Game
 	/**************************************
 	描画
 	***************************************/
-	bool ExpandEffectController::Draw(void)
-	{
-		bool Result = false;
-		LPDIRECT3DDEVICE9 Device = GetDevice();
+	//bool ExpandEffectController::Draw(void)
+	//{
+	//	bool Result = false;
+	//	LPDIRECT3DDEVICE9 Device = GetDevice();
 
-		//レンダーステートを加算合成に設定
-		Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	//	//レンダーステートを加算合成に設定
+	//	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 
-		Result = BaseParticleController::Draw();
+	//	Result = BaseParticleController::Draw();
 
-		//レンダーステートを元に戻す
-		Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	//	//レンダーステートを元に戻す
+	//	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		return Result;
-	}
+	//	return Result;
+	//}
 
 	/**************************************
 	ExpandEffectコンストラクタ
@@ -71,8 +71,7 @@ namespace Effect::Game
 	ExpandEffectコンストラクタ
 	***************************************/
 	ExpandEffect::ExpandEffect() :
-		Particle2D(Life),
-		targetScale(1.0f)
+		Particle2D(Life)
 	{
 	}
 

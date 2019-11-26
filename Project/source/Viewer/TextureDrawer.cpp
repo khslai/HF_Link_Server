@@ -16,7 +16,7 @@ TextureDrawer::TextureDrawer(D3DXVECTOR2 TextureSize) :
 	DevideX(1),
 	DevideY(1),
 	TextureSize(TextureSize),
-	UnitUV(D3DXVECTOR2(1.0f,1.0f))
+	UnitUV(D3DXVECTOR2(1.0f, 1.0f))
 {
 	MakeVertex();
 }
@@ -128,10 +128,10 @@ void TextureDrawer::SetTexture(void)
 //=============================================================================
 // テクスチャUV設定処理
 //=============================================================================
-void TextureDrawer::SetTexture(int UnitNo)
+void TextureDrawer::SetTexture(int Index)
 {
-	int x = UnitNo % DevideX;
-	int y = UnitNo / DevideX;
+	int x = Index % DevideX;
+	int y = Index / DevideX;
 
 	Vertex[0].tex = D3DXVECTOR2(x * UnitUV.x, y * UnitUV.y);
 	Vertex[1].tex = D3DXVECTOR2((x + 1) * UnitUV.x, y * UnitUV.y);
@@ -139,10 +139,12 @@ void TextureDrawer::SetTexture(int UnitNo)
 	Vertex[3].tex = D3DXVECTOR2((x + 1) * UnitUV.x, (y + 1) * UnitUV.y);
 }
 
+
+
 //=============================================================================
 // テクスチャ展開演出処理
 //=============================================================================
-void TextureDrawer::SetTextureExpand(float Time)
+void TextureDrawer::TexExpand_LeftToRight(float Time)
 {
 	float VtxPercent = Easing::EaseValue(Time, -1.0f, 1.0f, EaseType::InQuart);
 	float TexPercent = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::InQuart);
@@ -158,6 +160,47 @@ void TextureDrawer::SetTextureExpand(float Time)
 	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	Vertex[3].tex = D3DXVECTOR2(TexPercent, 1.0f);
 }
+
+//=============================================================================
+// テクスチャ展開演出処理
+//=============================================================================
+void TextureDrawer::TexExpand_ToUpDown(float Time)
+{
+	float VtxPercent = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::InQuart);
+	float TexPercent = Easing::EaseValue(Time, 0.5f, 0.0f, EaseType::InQuart);
+
+	// 頂点座標の設定
+	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+
+	Vertex[0].tex = D3DXVECTOR2(0.0f, UnitUV.y + TexPercent);
+	Vertex[1].tex = D3DXVECTOR2(1.0f, TexPercent);
+	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f - TexPercent);
+	Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f - TexPercent);
+}
+
+void TextureDrawer::TexExpand_ToUpDown(float Time, int Index)
+{
+	int x = Index % DevideX;
+	int y = Index / DevideX;
+	float StartTexPercent = (1.0f / DevideY) / 2;
+	float VtxPercent = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::InQuart);
+	float TexPercent = Easing::EaseValue(Time, StartTexPercent, 0.0f, EaseType::InQuart);
+
+	// 頂点座標の設定
+	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+
+	Vertex[0].tex = D3DXVECTOR2(x * UnitUV.x, (y * UnitUV.y) + TexPercent);
+	Vertex[1].tex = D3DXVECTOR2((x + 1) * UnitUV.x, (y * UnitUV.y) + TexPercent);
+	Vertex[2].tex = D3DXVECTOR2(x * UnitUV.x, (y + 1) * UnitUV.y - TexPercent);
+	Vertex[3].tex = D3DXVECTOR2((x + 1) * UnitUV.x, (y + 1) * UnitUV.y - TexPercent);
+}
+
 
 //=============================================================================
 // テクスチャのアルファ値設定処理（透過）

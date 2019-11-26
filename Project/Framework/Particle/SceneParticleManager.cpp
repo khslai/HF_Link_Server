@@ -77,7 +77,7 @@ void SceneParticleManager::Update()
 /**************************************
 描画処理
 ***************************************/
-void SceneParticleManager::Draw()
+void SceneParticleManager::Draw3DParticle()
 {
 	//レンダーパラメータ切り替え
 	ChangeRenderParameter();
@@ -89,7 +89,10 @@ void SceneParticleManager::Draw()
 	bool isDrewd = false;
 	for (auto& controller : controllers)
 	{
-		isDrewd |= controller->Draw();
+		if (controller->GetParticleType() == BaseParticleController::Particle_3D)
+		{
+			isDrewd |= controller->Draw();
+		}
 	}
 
 	//インスタンシング描画終了
@@ -104,6 +107,39 @@ void SceneParticleManager::Draw()
 	if (isDrewd)
 		crossFilter->Draw(renderTexture);
 #endif
+
+	//レンダーステート復元
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	pDevice->SetRenderState(D3DRS_LIGHTING, true);
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, true);
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, false);
+	//pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+}
+
+void SceneParticleManager::Draw2DParticle()
+{
+	//レンダーパラメータ切り替え
+	ChangeRenderParameter();
+
+	//インスタンシング描画開始
+	BaseParticleController::BeginDraw();
+
+	//描画
+	bool isDrewd = false;
+	for (auto& controller : controllers)
+	{
+		if (controller->GetParticleType() == BaseParticleController::Particle_2D)
+		{
+			isDrewd |= controller->Draw();
+		}
+	}
+
+	//インスタンシング描画終了
+	BaseParticleController::EndDraw();
+
+	//すべての結果を元のレンダーターゲットに描画
+	RestoreRenderParameter();
+	screenObj->Draw();
 
 	//レンダーステート復元
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();

@@ -47,8 +47,6 @@ public:
 private:
 	Background *background;
 	Transition *transition;
-	//EventLiveViewer *EventViewer;					// イベント中継ビューア
-	//UDPServerViewer *RankingViewer;				// ランキング表示ビューア
 	SOCKET ServerSocket;
 	State Current;
 	std::vector<BaseViewer*> ViewerContainer;

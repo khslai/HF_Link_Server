@@ -228,6 +228,8 @@
     <ClCompile Include="source\Effect\GameParticleManager.cpp" />
     <ClCompile Include="source\Effect\Game\BlueDebris.cpp" />
     <ClCompile Include="source\Effect\Game\ExpandEffect.cpp" />
+    <ClCompile Include="source\Effect\Game\GlassBroken.cpp" />
+    <ClCompile Include="source\Effect\Game\GlassShards.cpp" />
     <ClCompile Include="source\EventActorBase.cpp" />
     <ClCompile Include="source\GameMain.cpp" />
     <ClCompile Include="source\Scene\GameScene.cpp" />
@@ -356,6 +358,8 @@
     <ClInclude Include="source\Effect\GameParticleManager.h" />
     <ClInclude Include="source\Effect\Game\BlueDebris.h" />
     <ClInclude Include="source\Effect\Game\ExpandEffect.h" />
+    <ClInclude Include="source\Effect\Game\GlassBroken.h" />
+    <ClInclude Include="source\Effect\Game\GlassShards.h" />
     <ClInclude Include="source\EventActorBase.h" />
     <ClInclude Include="source\GameConfig.h" />
     <ClInclude Include="source\GameMain.h" />

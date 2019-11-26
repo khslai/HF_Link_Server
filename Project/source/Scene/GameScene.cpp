@@ -20,6 +20,7 @@
 #include "../../Framework/Resource/ResourceManager.h"
 #include "../../Framework/Network/UDPServer.h"
 #include "../../Framework/Effect/SpriteEffect.h"
+#include "../../Framework/Input/input.h"
 
 /**************************************
 staticメンバ
@@ -44,7 +45,7 @@ void GameScene::Init()
 	//パーティクル初期化
 	ParticleManager = GameParticleManager::Instance();
 	ParticleManager->Init();
-	ParticleManager->SetBlueDebris(D3DXVECTOR3(0.0f, 10.0f, 30.0f));
+	//ParticleManager->SetBlueDebris(D3DXVECTOR3(0.0f, 10.0f, 30.0f));
 
 	// サーバーの設定
 	Server = new UDPServer();
@@ -126,10 +127,12 @@ void GameScene::Draw()
 	Server->DrawBackground();
 
 	// パーティクル
-	ParticleManager->Draw();
+	ParticleManager->Draw3DParticle();
 
 	// ランキング
 	Server->DrawRanking();
+
+	ParticleManager->Draw2DParticle();
 }
 
 /**************************************

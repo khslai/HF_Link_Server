@@ -32,7 +32,8 @@ public:
 	virtual void Init();
 	virtual void Uninit();
 	virtual void Update();
-	virtual void Draw();
+	virtual void Draw3DParticle();
+	virtual void Draw2DParticle();
 
 	//パーティクル発生処理
 	virtual BaseEmitter* Generate(UINT id, const D3DXVECTOR3& pos, std::function<void(void)> callback = nullptr);

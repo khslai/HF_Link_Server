@@ -91,3 +91,38 @@ void BoardPolygon::SetDiffuse(const D3DXCOLOR & color)
 
 	vtxBuff->Unlock();
 }
+
+/**************************************
+アルファ設定処理
+***************************************/
+void BoardPolygon::SetAlpha(const float Alpha)
+{
+	VERTEX_3D *pVtx;
+	vtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	D3DXCOLOR Color = pVtx[0].diffuse;
+	Color.a = Alpha;
+
+	pVtx[0].diffuse = Color;
+	pVtx[1].diffuse = Color;
+	pVtx[2].diffuse = Color;
+	pVtx[3].diffuse = Color;
+
+	vtxBuff->Unlock();
+}
+
+/**************************************
+ディフューズ取得処理
+***************************************/
+D3DXCOLOR BoardPolygon::GetDiffuse(void) const
+{
+	VERTEX_3D *pVtx;
+	D3DXCOLOR Color;
+	vtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	Color = pVtx[0].diffuse;
+
+	vtxBuff->Unlock();
+
+	return Color;
+}

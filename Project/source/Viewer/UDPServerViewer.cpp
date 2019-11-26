@@ -119,7 +119,7 @@ void UDPServerViewer::Update(void)
 			CountFrame++;
 			float Time = (float)CountFrame / ExpandFrame;
 
-			ExpandTexture->SetTextureExpand(Time);
+			ExpandTexture->TexExpand_LeftToRight(Time);
 
 			// 展開終了
 			if (CountFrame == ExpandFrame)
@@ -284,7 +284,7 @@ void UDPServerViewer::RankingExpand()
 	// 演出用テクスチャの設定
 	ExpandTexture->LoadTexture(&NewTexture);
 	ExpandTexture->SetPosition(DefaultPos + D3DXVECTOR3(300.0f, InsertNum * RankInterval, 0.0f));
-	ExpandTexture->SetTextureExpand(0.0f);
+	ExpandTexture->TexExpand_LeftToRight(0.0f);
 
 	// エフェクト
 	GameParticleManager::Instance()->SetExpandEffect(

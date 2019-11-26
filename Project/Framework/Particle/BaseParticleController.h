@@ -89,6 +89,7 @@ public:
 
 	//描画パーティクル数取得処理
 	unsigned GetParticleCount() const;
+	ParticleType GetParticleType(void) { return this->useType; };
 
 protected:
 	LPDIRECT3DVERTEXBUFFER9 unitBuff;				//単位頂点バッファ
