@@ -13,7 +13,7 @@
 
 using namespace std;
 
-class TextureDrawer;
+class SplitTextureDrawer;
 
 //*****************************************************************************
 // ÉNÉâÉXíËã`
@@ -21,16 +21,21 @@ class TextureDrawer;
 class EventLiveViewer : public BaseViewer
 {
 private:
+	int State;								// èÛë‘
 	int CountFrame;
 	bool InActive;
-	TextureDrawer *Background;
-	TextureDrawer *EventMessage;
+	int TelopBGIndex;
+	int MessageIndex;
+	SplitTextureDrawer *TelopBG;
+	SplitTextureDrawer *EventMessage;
 
 public:
 	EventLiveViewer();
 	~EventLiveViewer();
-	void Update(void) override;
+	void Start(void) override;
+	bool Update(void) override;
 	void Draw(void) override;
+	void Exit(void) override;
 	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
 };
 

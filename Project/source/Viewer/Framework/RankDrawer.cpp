@@ -1,17 +1,17 @@
 //=============================================================================
 //
-// ランキング描画クラス [RankViewer.cpp]
+// ランキング描画クラス [RankDrawer.cpp]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#include "../../main.h"
-#include "RankViewer.h"
-#include "TextureDrawer.h"
+#include "../../../main.h"
+#include "RankDrawer.h"
+#include "SplitTextureDrawer.h"
 
-#include "../../Framework/Renderer2D/TextViewer.h"
-#include "../../Framework/String/String.h"
-#include "../../Framework/Tool/DebugWindow.h"
-#include "../../Framework/Math/Easing.h"
+#include "../../../Framework/Renderer2D/TextViewer.h"
+#include "../../../Framework/String/String.h"
+#include "../../../Framework/Tool/DebugWindow.h"
+#include "../../../Framework/Math/Easing.h"
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -23,19 +23,19 @@ const float DigitalInterval = 70.0f;
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-RankViewer::RankViewer(string Name, string AILevelStr) :
+RankDrawer::RankDrawer(string Name, string AILevelStr) :
 	RankNum(0),
 	InScreen(true),
 	AILevelStr(AILevelStr)
 {
-	RankDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(1024.0f, 384.0f));
-	RankDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
+	Rank = new SplitTextureDrawer(4, 3, D3DXVECTOR2(1024.0f, 384.0f));
+	Rank->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
 
 	PlayerName = new TextViewer("data/TEXTURE/Viewer/RankingViewer/Text_cinecaption226.ttf", 80);
 	PlayerName->SetColor(D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
 	PlayerName->SetText(Name);
 
-	AILevelDrawer = new TextureDrawer(4, 3, D3DXVECTOR2(512.0f, 384.0f));
+	AILevelDrawer = new SplitTextureDrawer(4, 3, D3DXVECTOR2(512.0f, 384.0f));
 	AILevelDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Number.png");
 
 	SetDrawPosition();
@@ -45,45 +45,43 @@ RankViewer::RankViewer(string Name, string AILevelStr) :
 //=============================================================================
 // デストラクタ
 //=============================================================================
-RankViewer::~RankViewer()
+RankDrawer::~RankDrawer()
 {
 	SAFE_DELETE(PlayerName);
 	SAFE_DELETE(AILevelDrawer);
-	SAFE_DELETE(RankDrawer);
+	SAFE_DELETE(Rank);
 	SplitedInt.clear();
 }
 
 //=============================================================================
 // 更新
 //=============================================================================
-void RankViewer::Update(void)
+void RankDrawer::Update(void)
 {
 }
 
 //=============================================================================
 // 描画
 //=============================================================================
-void RankViewer::Draw(void)
+void RankDrawer::Draw(void)
 {
 	// 画面外だったら、描画しない
 	if (!InScreen)
 		return;
 
 	// 順位表示
-	RankDrawer->SetTexture(RankNum);
-	RankDrawer->Draw();
+	Rank->SetIndex(RankNum);
+	Rank->Draw();
 
 	// プレイヤーの名前表示
 	PlayerName->Draw();
 
 	// AIレベル表示
-	//for (int i = 0; i < DigitalMax; i++)
 	for (unsigned int i = 0; i < SplitedInt.size(); i++)
 	{
 		// 左(最大桁)から描画
-		//AILevelDrawer->SetPosition(AILevelBasePos + D3DXVECTOR3(((DigitalMax - i) * DigitalInterval), 0.0f, 0.0f));
 		AILevelDrawer->SetPosition(AILevelBasePos + D3DXVECTOR3(((i + 1) * DigitalInterval), 0.0f, 0.0f));
-		AILevelDrawer->SetTexture(SplitedInt.at(i));
+		AILevelDrawer->SetIndex(SplitedInt.at(i));
 		AILevelDrawer->Draw();
 	}
 }
@@ -91,10 +89,10 @@ void RankViewer::Draw(void)
 //=============================================================================
 // 展開用のテクスチャを作る
 //=============================================================================
-void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
+void RankDrawer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 {
 	LPDIRECT3DSURFACE9 OldSurface;
-	LPDIRECT3DSURFACE9 RenderSurface;	
+	LPDIRECT3DSURFACE9 RenderSurface;
 	LPDIRECT3DTEXTURE9 RenderTexture;
 	LPDIRECT3DDEVICE9 Device = GetDevice();
 	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
@@ -118,8 +116,8 @@ void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 	Device->Clear(0, NULL, D3DCLEAR_TARGET, BackColor, 1.0f, 0);
 
 	// 順位表示
-	RankDrawer->SetTexture(RankNum);
-	RankDrawer->Draw();
+	Rank->SetIndex(RankNum);
+	Rank->Draw();
 
 	// プレイヤーの名前表示
 	PlayerName->Draw();
@@ -129,7 +127,7 @@ void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 	{
 		// 左(最大桁)から描画
 		AILevelDrawer->SetPosition(AILevelBasePos + D3DXVECTOR3(((i + 1) * DigitalInterval), 0.0f, 0.0f));
-		AILevelDrawer->SetTexture(SplitedInt.at(i));
+		AILevelDrawer->SetIndex(SplitedInt.at(i));
 		AILevelDrawer->Draw();
 	}
 
@@ -145,27 +143,27 @@ void RankViewer::CreateRankTexture(LPDIRECT3DTEXTURE9* Texture)
 //=============================================================================
 // テキストとテクスチャの描画位置を設定
 //=============================================================================
-void RankViewer::SetPosition(D3DXVECTOR3 Pos)
+void RankDrawer::SetPosition(D3DXVECTOR3 Pos)
 {
 	CenterPos = Pos;
-	InScreen = CenterPos.y > SCREEN_HEIGHT ? false : true;
+	InScreen = CenterPos.y > (SCREEN_HEIGHT - 60.0f) ? false : true;
 	SetDrawPosition();
 }
 
 //=============================================================================
 // テキストとテクスチャの描画位置を設定
 //=============================================================================
-void RankViewer::SetDrawPosition(void)
+void RankDrawer::SetDrawPosition(void)
 {
 	PlayerName->SetPos((int)(CenterPos.x - 150), (int)(CenterPos.y));
 	AILevelBasePos = CenterPos + D3DXVECTOR3(30.0f, 0.0f, 0.0f);
-	RankDrawer->SetPosition(CenterPos + D3DXVECTOR3(-500.0f, 0.0f, 0.0f));
+	Rank->SetPosition(CenterPos + D3DXVECTOR3(-500.0f, 0.0f, 0.0f));
 }
 
 //=============================================================================
 // AILevelの文字列を分割
 //=============================================================================
-void RankViewer::SplitAILevel(void)
+void RankDrawer::SplitAILevel(void)
 {
 	string StrTemp = AILevelStr;
 
@@ -185,7 +183,6 @@ void RankViewer::SplitAILevel(void)
 		else
 		{
 			break;
-			//SplitedInt.push_back(0);
 		}
 	}
 }
@@ -193,7 +190,7 @@ void RankViewer::SplitAILevel(void)
 //=============================================================================
 // AILevelの文字列をunsinged long long型に変換
 //=============================================================================
-unsigned long long RankViewer::GetAILevel(void)
+unsigned long long RankDrawer::GetAILevel(void)
 {
 	return std::strtoull(AILevelStr.c_str(), NULL, 10);
 }

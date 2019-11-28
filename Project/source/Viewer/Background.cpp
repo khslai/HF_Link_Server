@@ -6,9 +6,10 @@
 //=============================================================================
 #include "../../main.h"
 #include "Background.h"
-#include "PolygonDrawer.h"
+#include "Framework/PolygonDrawer.h"
 #include "../Effect/GameParticleManager.h"
 #include "../Camera/FieldCamera.h"
+#include "ViewerConfig.h"
 
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
@@ -31,17 +32,18 @@ Background::Background() :
 	PrevBG(0),
 	BGChange(false)
 {
-	ResourceManager::Instance()->MakePolygon("Background_Rank", "data/TEXTURE/Viewer/Background/Background_Rank.png", { 10.264f * 10, 5.773f * 10 });
-	ResourceManager::Instance()->MakePolygon("Background_Event", "data/TEXTURE/Viewer/Background/Background_Event.png", { 10.264f * 10, 5.773f * 10 });
-	ResourceManager::Instance()->MakePolygon("Background_LevelUp", "data/TEXTURE/Viewer/Background/Background_LevelUp.png", { 10.264f * 10, 5.773f * 10 });
+	ResourceManager::Instance()->MakePolygon("Background_Rank", "data/TEXTURE/Viewer/Background/Background_Rank.png", Viewer::BackGroundSize);
+	ResourceManager::Instance()->MakePolygon("Background_Event", "data/TEXTURE/Viewer/Background/Background_Event.png", Viewer::BackGroundSize);
+	ResourceManager::Instance()->MakePolygon("Background_LevelUp", "data/TEXTURE/Viewer/Background/Background_LevelUp.png", Viewer::BackGroundSize);
 	ResourceManager::Instance()->MakePolygon("Wall", "data/TEXTURE/Viewer/Background/Wall.png", { 8.0f, 4.5f });
 	ResourceManager::Instance()->MakePolygon("Ground", "data/TEXTURE/Viewer/Background/Ground.png", { 10.0f, 10.0f });
 
+
 	background.reserve(Background::BGType::Max);
-	background.push_back(new PolygonDrawer("Background_Rank", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
-	background.push_back(new PolygonDrawer("Background_Event", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
+	background.push_back(new PolygonDrawer("Background_Rank", Viewer::BackgroundPos));
+	background.push_back(new PolygonDrawer("Background_Event", Viewer::BackgroundPos));
 	background.at(Background::BGType::Event)->SetAlpha(0.0f);
-	background.push_back(new PolygonDrawer("Background_LevelUp", D3DXVECTOR3(0.0f, 10.0f, 100.0f)));
+	background.push_back(new PolygonDrawer("Background_LevelUp", Viewer::BackgroundPos));
 	background.at(Background::BGType::LevelUp)->SetAlpha(0.0f);
 
 	for (int i = 0; i < WallNum; i++)
@@ -111,7 +113,6 @@ void Background::Draw(void)
 	LPDIRECT3DDEVICE9 Device = GetDevice();
 
 	//Device->SetRenderState(D3DRS_ZWRITEENABLE, false);
-	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	//Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 

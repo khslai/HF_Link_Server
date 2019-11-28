@@ -28,7 +28,7 @@ public:
 	void Update(void);
 	void Draw(void);
 	void LoadTexture(const LPDIRECT3DTEXTURE9& Texture);
-	void SetTransition(void);
+	void SetTransition(int Type, const LPDIRECT3DTEXTURE9 & Texture);
 	bool InActive(void) { return this->Active; };
 };
 

@@ -15,7 +15,7 @@
 using namespace std;
 
 class Background;
-class UDPServerViewer;
+class RankingViewer;
 class EventLiveViewer;
 class Transition;
 
@@ -35,26 +35,28 @@ public:
 	static HANDLE Thread;
 	static unsigned __stdcall ThreadEntryPoint(void* This);
 
-	//ステートを表す列挙子
-	enum State
-	{
-		Ranking,
-		Event,
-		//LevelUp,
-		Max
-	};
+	////ステートを表す列挙子
+	//enum State
+	//{
+	//	Ranking,
+	//	Event,
+	//	//LevelUp,
+	//	Max
+	//};
 
 private:
 	Background *background;
 	Transition *transition;
 	SOCKET ServerSocket;
-	State Current;
+	int Current;
+	bool InInsertRank;
 	std::vector<BaseViewer*> ViewerContainer;
-	std::vector<std::vector<string>> RankStack;		// 追加予定のランク
+	std::vector<std::vector<string>> PacketStack;		// 追加予定のランク
 	std::vector<sockaddr_in> ConnectedList;
 
 	void ReceivePacket(void);
-	void CreateViewerTexture(void);
+	void PacketProcess(void);
+	void ChangeViewer(int NextViewer,int TransitionType);
 };
 
 #endif

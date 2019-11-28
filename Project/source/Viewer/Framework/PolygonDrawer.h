@@ -7,7 +7,7 @@
 #ifndef _PolygonDrawer_H_
 #define _PolygonDrawer_H_
 
-#include "../../Framework/Renderer3D/BoardPolygon.h"
+#include "../../../Framework/Renderer3D/BoardPolygon.h"
 
 enum MovePolygonType
 {

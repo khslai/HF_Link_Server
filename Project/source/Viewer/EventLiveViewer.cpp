@@ -6,12 +6,46 @@
 //=============================================================================
 #include "../../main.h"
 #include "EventLiveViewer.h"
-#include "TextureDrawer.h"
+#include "Framework/SplitTextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
+#include "../EventConfig.h"
 
+#include "../../Framework/Network/PacketConfig.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
+
+enum ViewerState
+{
+	TelopExpand,
+	MessageDebut,
+	MessageStop,
+	MessageExit,
+	TelopClose,
+};
+
+enum FieldLevel
+{
+	City,
+	World,
+	Space,
+};
+
+enum TelopBGType
+{
+	PlusEvent,
+	MinusEvent,
+};
+
+enum MessageType
+{
+	Singularity,
+	Atlantis,
+	NewPlanet,
+	Meteor,
+	UFO,
+	AIStrike,
+};
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -23,10 +57,9 @@
 //=============================================================================
 EventLiveViewer::EventLiveViewer()
 {
-	Background = new TextureDrawer(1, 2, D3DXVECTOR2(SCREEN_WIDTH, 512.0f));
-	Background->LoadTexture("data/TEXTURE/Viewer/EventLiveViewer/BG.png");
-	Background->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f));
-	Background->TexExpand_ToUpDown(0.0f);
+	TelopBG = new SplitTextureDrawer(1, 2, D3DXVECTOR2(SCREEN_WIDTH, 512.0f), false);
+	TelopBG->LoadTexture("data/TEXTURE/Viewer/EventLiveViewer/BG.png");
+	TelopBG->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f));
 }
 
 //=============================================================================
@@ -34,32 +67,62 @@ EventLiveViewer::EventLiveViewer()
 //=============================================================================
 EventLiveViewer::~EventLiveViewer()
 {
-	SAFE_DELETE(Background);
+	SAFE_DELETE(TelopBG);
 	SAFE_DELETE(EventMessage);
+}
+
+void EventLiveViewer::Start(void)
+{
+
 }
 
 //=============================================================================
 // 更新
 //=============================================================================
-void EventLiveViewer::Update(void)
+bool EventLiveViewer::Update(void)
 {
-	//if (!InActive)
-	//	return;
-	static bool Test = false;
+	if (!InActive)
+		return true;
 
-	if (Debug::Button("TextureExpand"))
-	{
-		Test = true;
-		CountFrame = 0;
-	}
-
-	if (Test)
+	if (!InIdle)
 	{
 		CountFrame++;
 		float Time = (float)CountFrame / 60;
 
-		Background->TexExpand_ToUpDown(Time, 0);
+		if (State == TelopExpand)
+		{
+			TelopBG->Expand_ToUpDown(Time, EaseType::InQuart);
+		}
+		else if (State == MessageDebut)
+		{
+
+		}
+		else if (State == MessageStop)
+		{
+
+		}
+		else if (State == MessageExit)
+		{
+
+		}
+		else if (State == TelopClose)
+		{
+
+		}
+
+		if (Time >= 1.0f)
+		{
+			State++;
+			CountFrame = 0;
+
+			if (State > TelopClose)
+			{
+				InIdle = true;
+			}
+		}
 	}
+
+	return InIdle;
 }
 
 //=============================================================================
@@ -67,8 +130,13 @@ void EventLiveViewer::Update(void)
 //=============================================================================
 void EventLiveViewer::Draw(void)
 {
-	Background->Draw();
+	TelopBG->Draw();
 	//EventMessage->Draw();
+}
+
+void EventLiveViewer::Exit(void)
+{
+
 }
 
 //=============================================================================
@@ -76,5 +144,43 @@ void EventLiveViewer::Draw(void)
 //=============================================================================
 void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
 {
+	if (PacketType != Packet::InsertRank)
+		return;
 
+	TelopBGIndex = 0;
+	MessageIndex = 0;
+	int EventNo = std::stoi(SpliteStr.at(Packet::EventNo));
+	int FieldLevel = std::stoi(SpliteStr.at(Packet::FieldLevel));
+
+	if (EventNo == EventConfig::NewCity)
+	{
+		TelopBGIndex = PlusEvent;
+		if (FieldLevel == FieldLevel::City)
+		{
+			MessageIndex = MessageType::Singularity;
+		}
+		else if (FieldLevel == FieldLevel::World)
+		{
+			MessageIndex = MessageType::Atlantis;
+		}
+		else if (FieldLevel == FieldLevel::Space)
+		{
+			MessageIndex = MessageType::NewPlanet;
+		}
+	}
+	else if (EventNo == EventConfig::CityDestroy)
+	{
+		TelopBGIndex = MinusEvent;
+		MessageIndex = Meteor;
+	}
+	else if (EventNo == EventConfig::AILevelDecrease)
+	{
+		TelopBGIndex = MinusEvent;
+		MessageIndex = UFO;
+	}
+	else if (EventNo == EventConfig::BanStockUse)
+	{
+		TelopBGIndex = MinusEvent;
+		MessageIndex = AIStrike;
+	}
 }

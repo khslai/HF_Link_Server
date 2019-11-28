@@ -6,7 +6,7 @@
 //=============================================================================
 #include "../../main.h"
 #include "Transition.h"
-#include "TextureDrawer.h"
+#include "Framework/TextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
 #include "../Camera/FieldCamera.h"
 
@@ -105,9 +105,16 @@ void Transition::LoadTexture(const LPDIRECT3DTEXTURE9 & Texture)
 //=============================================================================
 // トランジション設置
 //=============================================================================
-void Transition::SetTransition(void)
+void Transition::SetTransition(int Type, const LPDIRECT3DTEXTURE9& Texture)
 {
+	if (this->Texture != nullptr)
+	{
+		SAFE_RELEASE(this->Texture);
+	}
+	this->Texture = Texture;
+
 	CountFrame = 0;
+	// 加算するカラー
 	Color = Vector3::Zero;
 	Active = true;
 }

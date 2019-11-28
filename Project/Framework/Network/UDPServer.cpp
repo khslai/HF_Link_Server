@@ -10,14 +10,16 @@
 #include "../String/String.h"
 #include "../Tool/DebugWindow.h"
 #include "../Task/TaskManager.h"
-#include "../../source/Viewer/UDPServerViewer.h"
+#include "../Input/input.h"
+#include "../../source/Viewer/RankingViewer.h"
 #include "../../source/Viewer/EventLiveViewer.h"
 #include "../../source/Viewer/Background.h"
 #include "../../source/Viewer/Transition.h"
+#include "../../source/Viewer/ViewerConfig.h"
 #include "../../source/Effect/GameParticleManager.h"
+#include "../../source/EventConfig.h"
 
 
-#include "../Input/input.h"
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -28,14 +30,14 @@ HANDLE UDPServer::Thread;
 // コンストラクタ
 //=============================================================================
 UDPServer::UDPServer() :
-	Current(State::Ranking)
+	Current(Viewer::State::Ranking)
 {
 	background = new Background();
 	transition = new Transition();
 
-	ViewerContainer.resize(State::Max);
-	ViewerContainer[State::Ranking] = new UDPServerViewer();
-	ViewerContainer[State::Event] = new EventLiveViewer();
+	ViewerContainer.resize(Viewer::State::Max);
+	ViewerContainer[Viewer::State::Ranking] = new RankingViewer();
+	ViewerContainer[Viewer::State::EventLive] = new EventLiveViewer();
 
 	// WinSock初期化
 	WSADATA wsaData;
@@ -63,8 +65,6 @@ UDPServer::~UDPServer()
 	SAFE_DELETE(background);
 	SAFE_DELETE(transition);
 	Utility::DeleteContainer(ViewerContainer);
-	//SAFE_DELETE(EventViewer);
-	//SAFE_DELETE(RankingViewer);
 	ConnectedList.clear();
 
 	// WinSock終了処理
@@ -100,42 +100,64 @@ void UDPServer::Update(void)
 	}
 	Debug::End();
 
+	Debug::Begin("ReceivePacket");
+	std::vector<string> Packet;
+	Packet.resize(Packet::Max);
+	Packet.at(Packet::Header) = "これはLink専用の通信パケットです";
+	if (Debug::Button("RankInsert"))
+	{
+		Packet.at(Packet::Type) = std::to_string(Packet::InsertRank);
+		Packet.at(Packet::PlayerName) = "Player";
+		Packet.at(Packet::AILevel) = "123456654321";
+	}
+	else if (Debug::Button("NewCity"))
+	{
+		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
+		Packet.at(Packet::EventNo) = EventConfig::NewCity;
+	}
+	else if (Debug::Button("Meteor"))
+	{
+		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
+		Packet.at(Packet::EventNo) = EventConfig::CityDestroy;
+	}
+	else if (Debug::Button("AIStrike"))
+	{
+		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
+		Packet.at(Packet::EventNo) = EventConfig::BanStockUse;
+	}
+	else if (Debug::Button("UFO"))
+	{
+		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
+		Packet.at(Packet::EventNo) = EventConfig::AILevelDecrease;
+	}
+
+	if (!Packet.at(Packet::Type).empty())
+		PacketStack.push_back(Packet);
+
+	Debug::End();
+
 	Debug::Begin("ViewerChange");
 	if (Debug::Button("EventViewer"))
 	{
 		// エフェクト
 		GameParticleManager::Instance()->SetGlassShards();
-		CreateViewerTexture();
 		TaskManager::Instance()->CreateDelayedTask(60, [&]()
 		{
-			transition->SetTransition();
-			background->SetBGTransition(State::Event);
-			Current = State::Event;
+			ChangeViewer(Viewer::State::EventLive, 0);
 		});
 	}
 	else if (Debug::Button("RankingViewer"))
 	{
-		background->RecoveryBGColor();
-		Current = State::Ranking;
+		ChangeViewer(Viewer::State::Ranking, 0);
+		//background->RecoveryBGColor();
+		//Current = Viewer::State::Ranking;
 	}
 	Debug::End();
 
 #endif
 
-	if (Current == State::Ranking)
-	{
-		if (!RankStack.empty())
-		{
-			for (auto &Str : RankStack)
-			{
-				int Type = stoi(Str.at(Packet::Rank::Type));
-				ViewerContainer.at(Current)->ReceivePacket(Type, Str);
-				//RankingViewer->CreateRankViewer(Str.at(0), Str.at(1));
-				Str.clear();
-			}
-			RankStack.clear();
-		}
-	}
+	// パケットを処理
+	PacketProcess();
 
 	background->Update();
 
@@ -239,42 +261,69 @@ void UDPServer::ReceivePacket(void)
 			//SplitedStr.erase(SplitedStr.begin());
 
 			// スタックに表示予定のオブジェクトを追加
-			RankStack.push_back(SplitedStr);
+			PacketStack.push_back(SplitedStr);
 		}
 	}
 }
 
-void UDPServer::CreateViewerTexture(void)
+//=============================================================================
+// パケットのを処理する
+//=============================================================================
+void UDPServer::PacketProcess(void)
 {
-	LPDIRECT3DSURFACE9 OldSurface;
-	LPDIRECT3DSURFACE9 RenderSurface;
-	static LPDIRECT3DTEXTURE9 RenderTexture;
-	LPDIRECT3DDEVICE9 Device = GetDevice();
-	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+	// 処理待ちのパケットがあれば
+	if (!PacketStack.empty() && !InInsertRank)
+	{
+		// 先にランキング追加の事件を処理
+		for (auto &Str : PacketStack)
+		{
+			int Type = stoi(Str.at(Packet::Type));
+			if (Type == Packet::InsertRank)
+			{
+				InInsertRank = true;
+				ViewerContainer.at(Viewer::Ranking)->ReceivePacket(Type, Str);
+			}
+			Str.clear();
+		}
 
-	//レンダーテクスチャ作成
-	Device->CreateTexture(SCREEN_WIDTH, SCREEN_HEIGHT,
-		1,
-		D3DUSAGE_RENDERTARGET,
-		D3DFMT_A8R8G8B8,
-		D3DPOOL_DEFAULT,
-		&RenderTexture,
-		0);
+		// 後に他の事件を処理
+		if (!InInsertRank)
+		{
+			for (auto &Str : PacketStack)
+			{
+				if (Str.empty())
+					continue;
 
-	RenderTexture->GetSurfaceLevel(0, &RenderSurface);
+				int Type = stoi(Str.at(Packet::Type));
+				if (Type == Packet::EventLive)
+				{
+					ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
+				}
+				else if (Type == Packet::LevelUp)
+				{
+					//ViewerContainer.at(Viewer::)->ReceivePacket(Type, Str);
+				}
+				Str.clear();
+			}
+		}
+	}
 
-	//レンダーターゲット切り替え
-	Device->GetRenderTarget(0, &OldSurface);
-	Device->SetRenderTarget(0, RenderSurface);
-	Device->Clear(0, NULL, D3DCLEAR_TARGET, BackColor, 1.0f, 0);
+	// 空きパケットを削除
+	PacketStack.erase(std::remove_if(std::begin(PacketStack), std::end(PacketStack), [](vector<string> Packet)
+	{
+		return Packet.empty();
+	}), std::end(PacketStack));
+}
 
-	ViewerContainer.at(State::Ranking)->Draw();
+//=============================================================================
+// ビューアを変える
+//=============================================================================
+void UDPServer::ChangeViewer(int NextViewer, int TransitionType)
+{
+	LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
 
-	//レンダーターゲット復元
-	Device->SetRenderTarget(0, OldSurface);
-	SAFE_RELEASE(OldSurface);
-	SAFE_RELEASE(RenderSurface);
-
-	transition->LoadTexture(RenderTexture);
-	RenderTexture = nullptr;
+	ViewerContainer.at(Viewer::State::Ranking)->CreateViewerTex(&ViewerTexture);
+	transition->SetTransition(TransitionType, ViewerTexture);
+	background->SetBGTransition(NextViewer);
+	Current = NextViewer;
 }

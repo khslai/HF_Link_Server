@@ -294,9 +294,6 @@
     <ClCompile Include="source\Camera\FieldCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="source\EventActorBase.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Network\UDPClient.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -312,15 +309,6 @@
     <ClCompile Include="source\Actor\CityActor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="source\Viewer\UDPServerViewer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Viewer\TextureDrawer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Viewer\RankViewer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="source\Effect\GameParticleManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -333,22 +321,37 @@
     <ClCompile Include="source\Viewer\Background.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="source\Viewer\PolygonDrawer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="source\Effect\Game\BlueDebris.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="source\Actor\RobotActor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="source\Viewer\Transition.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="source\Effect\Game\GlassShards.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="source\Effect\Game\GlassBroken.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Framework\PolygonDrawer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Framework\TextureDrawer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Framework\RankDrawer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\RankingViewer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Transition.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Framework\BaseTextureDrawer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Viewer\Framework\SplitTextureDrawer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -677,9 +680,6 @@
     <ClInclude Include="resource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="source\EventActorBase.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Network\PacketConfig.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -701,15 +701,6 @@
     <ClInclude Include="source\Actor\CityActor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="source\Viewer\UDPServerViewer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Viewer\TextureDrawer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Viewer\RankViewer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="source\Effect\GameParticleManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -722,16 +713,10 @@
     <ClInclude Include="source\Viewer\Background.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="source\Viewer\PolygonDrawer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="source\Effect\Game\BlueDebris.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="source\Actor\RobotActor.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Viewer\Transition.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="source\Viewer\BaseViewer.h">
@@ -741,6 +726,33 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="source\Effect\Game\GlassBroken.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\ViewerConfig.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Framework\PolygonDrawer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Framework\TextureDrawer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Framework\RankDrawer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\RankingViewer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Transition.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\EventConfig.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Framework\BaseTextureDrawer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Viewer\Framework\SplitTextureDrawer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

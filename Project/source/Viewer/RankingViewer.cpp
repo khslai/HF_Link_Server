@@ -1,22 +1,26 @@
 //=============================================================================
 //
-// UDPサーバー描画クラス [UDPServerViewer.cpp]
+// ランキングビューアクラス [RankingViewer.cpp]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
 #include "../../main.h"
-#include "UDPServerViewer.h"
-#include "RankViewer.h"
-#include "TextureDrawer.h"
+#include "RankingViewer.h"
+#include "ViewerConfig.h"
+#include "Framework/RankDrawer.h"
+#include "Framework/TextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
 
+#include "../../Framework/Resource/ResourceManager.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
 #include "../../Framework/Network/PacketConfig.h"
 
+// ランキングの最大表示数
 const int RankingMaxNum = 7;
 const float RankInterval = 120.0f;
+// デフォルト表示座標
 const D3DXVECTOR3 DefaultPos = D3DXVECTOR3(SCREEN_CENTER_X - 300.0f, 240.0f, 0.0f);
 
 enum ViewerState
@@ -34,20 +38,20 @@ enum ViewerState
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-UDPServerViewer::UDPServerViewer() :
+RankingViewer::RankingViewer() :
 	InsertTemp(nullptr)
 {
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
 	RankingTitle->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
 	RankingTitle->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, 108.0f, 0.0f));
 
-	ExpandTexture = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 120.0f));
+	ExpandTexture = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 120.0f), false);
 }
 
 //=============================================================================
 // デストラクタ
 //=============================================================================
-UDPServerViewer::~UDPServerViewer()
+RankingViewer::~RankingViewer()
 {
 	SAFE_DELETE(RankingTitle);
 	SAFE_DELETE(ExpandTexture);
@@ -57,16 +61,25 @@ UDPServerViewer::~UDPServerViewer()
 }
 
 //=============================================================================
+// 入場処理
+//=============================================================================
+void RankingViewer::Start(void)
+{
+
+}
+
+//=============================================================================
 // 更新
 //=============================================================================
-void UDPServerViewer::Update(void)
+bool RankingViewer::Update(void)
 {
 	const int MoveFrame = 30;
-	const int ExpandFrame = 60;
 	const float MoveSpeed = RankInterval / MoveFrame;
+	InIdle = false;
 
 	if (State == ViewerState::Idle)
 	{
+		// 追加待ちのオブジェクトがない
 		if (InsertStack.empty())
 		{
 			// 順番によって、表示座標を設定
@@ -77,6 +90,9 @@ void UDPServerViewer::Update(void)
 				RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
 				Num++;
 			}
+
+			// ランキングビューアは待機状態
+			InIdle = true;
 		}
 		else
 		{
@@ -114,21 +130,7 @@ void UDPServerViewer::Update(void)
 	}
 	else if (State == ViewerState::Expand)
 	{
-		if (CountFrame < ExpandFrame)
-		{
-			CountFrame++;
-			float Time = (float)CountFrame / ExpandFrame;
-
-			ExpandTexture->TexExpand_LeftToRight(Time);
-
-			// 展開終了
-			if (CountFrame == ExpandFrame)
-			{
-				// ランキングに追加
-				RankingInsert();
-				State = ViewerState::Idle;
-			}
-		}
+		ExpandTexture->Update();
 	}
 
 #if _DEBUG
@@ -136,27 +138,29 @@ void UDPServerViewer::Update(void)
 	if (Debug::Button("Clear"))
 		ClearRanking();
 	else if (Debug::Button("123"))
-		CreateRankViewer("Player", "123");
+		CreateRankDrawer("Player", "123");
 	else if (Debug::Button("123455"))
-		CreateRankViewer("Player", "123455");
+		CreateRankDrawer("Player", "123455");
 	else if (Debug::Button("123456"))
-		CreateRankViewer("Player", "123456");
+		CreateRankDrawer("Player", "123456");
 	else if (Debug::Button("123457"))
-		CreateRankViewer("Player", "123457");
+		CreateRankDrawer("Player", "123457");
 	else if (Debug::Button("123456789"))
-		CreateRankViewer("Player", "123456789");
+		CreateRankDrawer("Player", "123456789");
 	else if (Debug::Button("123456789123"))
-		CreateRankViewer("Player", "123456789123");
+		CreateRankDrawer("Player", "123456789123");
 	else if (Debug::Button("123456789123456"))
-		CreateRankViewer("Player", "123456789123456");
+		CreateRankDrawer("Player", "123456789123456");
 	Debug::End();
 #endif
+
+	return InIdle;
 }
 
 //=============================================================================
 // 描画
 //=============================================================================
-void UDPServerViewer::Draw(void)
+void RankingViewer::Draw(void)
 {
 	// タイトル
 	RankingTitle->Draw();
@@ -175,47 +179,100 @@ void UDPServerViewer::Draw(void)
 }
 
 //=============================================================================
+// 退場処理
+//=============================================================================
+void RankingViewer::Exit(void)
+{
+
+}
+
+//=============================================================================
 // パケットの内容を処理
 //=============================================================================
-void UDPServerViewer::CreateRankViewer(string PlayerName, string AILevel)
+void RankingViewer::CreateRankDrawer(string PlayerName, string AILevel)
 {
 	if (InsertTemp == nullptr)
 	{
-		InsertTemp = new RankViewer(PlayerName, AILevel);
+		InsertTemp = new RankDrawer(PlayerName, AILevel);
 		SortRanking(InsertTemp);
 	}
 	else
 	{
-		InsertStack.push_back(new RankViewer(PlayerName, AILevel));
+		InsertStack.push_back(new RankDrawer(PlayerName, AILevel));
 	}
 }
 
 //=============================================================================
 // パケットの内容を処理
 //=============================================================================
-void UDPServerViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
+void RankingViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
 {
-	if (PacketType != Packet::Viewer::ShowRanking)
+	if (PacketType != Packet::InsertRank)
 		return;
 
-	string Name = SpliteStr.at(Packet::Rank::PlayerName);
-	string AILevel = SpliteStr.at(Packet::Rank::AILevel);
+	string Name = SpliteStr.at(Packet::PlayerName);
+	string AILevel = SpliteStr.at(Packet::AILevel);
 
 	if (InsertTemp == nullptr)
 	{
-		InsertTemp = new RankViewer(Name, AILevel);
+		InsertTemp = new RankDrawer(Name, AILevel);
 		SortRanking(InsertTemp);
 	}
 	else
 	{
-		InsertStack.push_back(new RankViewer(Name, AILevel));
+		InsertStack.push_back(new RankDrawer(Name, AILevel));
 	}
+}
+
+//=============================================================================
+// ランキングのテクスチャを作成
+//=============================================================================
+void RankingViewer::CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr)
+{
+	LPDIRECT3DSURFACE9 OldSurface;
+	LPDIRECT3DSURFACE9 RenderSurface;
+	LPDIRECT3DTEXTURE9 RenderTexture;
+	LPDIRECT3DDEVICE9 Device = GetDevice();
+	const D3DXCOLOR BackColor = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+
+	//レンダーテクスチャ作成
+	Device->CreateTexture(SCREEN_WIDTH, SCREEN_HEIGHT,
+		1,
+		D3DUSAGE_RENDERTARGET,
+		D3DFMT_A8R8G8B8,
+		D3DPOOL_DEFAULT,
+		&RenderTexture,
+		0);
+
+	RenderTexture->GetSurfaceLevel(0, &RenderSurface);
+
+	//レンダーターゲット切り替え
+	Device->GetRenderTarget(0, &OldSurface);
+	Device->SetRenderTarget(0, RenderSurface);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET, BackColor, 1.0f, 0);
+
+	// タイトル
+	RankingTitle->Draw();
+
+	// ランキング
+	for (auto & Rank : Ranking)
+	{
+		Rank->Draw();
+	}
+
+	//レンダーターゲット復元
+	Device->SetRenderTarget(0, OldSurface);
+	SAFE_RELEASE(OldSurface);
+	SAFE_RELEASE(RenderSurface);
+
+	*TexturePtr = RenderTexture;
+	RenderTexture = nullptr;
 }
 
 //=============================================================================
 // ランキングの順番を決める
 //=============================================================================
-void UDPServerViewer::SortRanking(RankViewer* Rank)
+void RankingViewer::SortRanking(RankDrawer* Rank)
 {
 	int Num = 0;
 
@@ -262,7 +319,7 @@ void UDPServerViewer::SortRanking(RankViewer* Rank)
 //=============================================================================
 // ランキングの移動開始
 //=============================================================================
-void UDPServerViewer::RankingMoveStart(int Num)
+void RankingViewer::RankingMoveStart(int Num)
 {
 	State = ViewerState::Move;
 	InsertNum = Num;
@@ -272,7 +329,7 @@ void UDPServerViewer::RankingMoveStart(int Num)
 //=============================================================================
 // ランキングの展開開始
 //=============================================================================
-void UDPServerViewer::RankingExpand()
+void RankingViewer::RankingExpand()
 {
 	LPDIRECT3DTEXTURE9 NewTexture = nullptr;
 
@@ -284,7 +341,12 @@ void UDPServerViewer::RankingExpand()
 	// 演出用テクスチャの設定
 	ExpandTexture->LoadTexture(&NewTexture);
 	ExpandTexture->SetPosition(DefaultPos + D3DXVECTOR3(300.0f, InsertNum * RankInterval, 0.0f));
-	ExpandTexture->TexExpand_LeftToRight(0.0f);
+	ExpandTexture->Expand(60.0f, ExpandType::LeftToRight, EaseType::InQuart, [&]()
+	{
+		// ランキングに追加
+		RankingInsert();
+		State = ViewerState::Idle;
+	});
 
 	// エフェクト
 	GameParticleManager::Instance()->SetExpandEffect(
@@ -297,7 +359,7 @@ void UDPServerViewer::RankingExpand()
 //=============================================================================
 // ランキング追加処理
 //=============================================================================
-void UDPServerViewer::RankingInsert(void)
+void RankingViewer::RankingInsert(void)
 {
 	InsertTemp->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, InsertNum * RankInterval, 0.0f));
 	Ranking.insert(Ranking.begin() + InsertNum, InsertTemp);
@@ -311,7 +373,7 @@ void UDPServerViewer::RankingInsert(void)
 }
 
 #if _DEBUG
-void UDPServerViewer::ClearRanking(void)
+void RankingViewer::ClearRanking(void)
 {
 	Utility::DeleteContainer(Ranking);
 }

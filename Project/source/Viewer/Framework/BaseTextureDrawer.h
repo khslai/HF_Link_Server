@@ -1,11 +1,13 @@
 //=============================================================================
 //
-// テクスチャ描画クラス [TextureDrawer.h]
+// テクスチャ描画クラス [BaseTextureDrawer.h]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#ifndef _TextureDrawer_H_
-#define _TextureDrawer_H_
+#ifndef _BaseTextureDrawer_H_
+#define _BaseTextureDrawer_H_
+
+#include "../../../Framework/Math/Easing.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -21,46 +23,49 @@
 #define SET_COLOR_RIGHTBLUE		(D3DXCOLOR(0.0f,1.0f,1.0f,1.0f))
 #define SET_COLOR_ORANGE		(D3DXCOLOR(1.0f,0.4f,0.0f,1.0f))
 
-enum TexExpandType
+enum ExpandType
 {
 	LeftToRight,
-	Expand_UpDown,
+	RightToLeft,
+	ToUpDown,
+	ToLeftRight,
+};
+
+enum CloseType
+{
+	FromLeftRight,
+	FromUpDown,
 };
 
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
-class TextureDrawer
+class BaseTextureDrawer
 {
-private:
-	int DevideX;
-	int DevideY;
+protected:
 	D3DXVECTOR3	Position;
 	D3DXVECTOR2	TextureSize;
-	D3DXVECTOR2 UnitUV;
 	VERTEX_2D Vertex[NUM_VERTEX];
 	LPDIRECT3DTEXTURE9 Texture = nullptr;
+	EaseType easeType;
+	int CountFrame = 0;
+	int expandType = 0;
+	int closeType = 0;
+	bool InMove = false;
+	bool InScale = false;
+	bool InExpand = false;
+	bool InClose = false;
+	bool Visible = true;
 
-	void MakeVertex();
-	void SetVertex();
-	void SetTexture(void);
 public:
-	TextureDrawer(D3DXVECTOR2 TextureSize);
-	TextureDrawer(int DevideX, int DevideY, D3DXVECTOR2 TextureSize);
-	virtual ~TextureDrawer();
+	BaseTextureDrawer();
+	virtual ~BaseTextureDrawer();
 
 	void Draw();
 	void LoadTexture(const char *path);
 	void LoadTexture(LPDIRECT3DTEXTURE9* Texture);
 	void SetAlpha(float alpha);
 	void SetColor(D3DXCOLOR color);
-	void SetPosition(D3DXVECTOR3 Pos);
-	void SetTexture(int Index);
-	void TexExpand_LeftToRight(float Time);
-	void TexExpand_ToUpDown(float Time);
-	void TexExpand_ToUpDown(float Time, int Index);
-
-
 };
 
 #endif

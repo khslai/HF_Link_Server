@@ -1,11 +1,11 @@
 //=============================================================================
 //
-// UDPサーバー描画クラス [UDPServerViewer.h]
+// ランキングビューアクラス [RankingViewer.h]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#ifndef _UDPServerViewer_H_
-#define _UDPServerViewer_H_
+#ifndef _RankingViewer_H_
+#define _RankingViewer_H_
 
 #include <string>
 #include <vector>
@@ -13,13 +13,13 @@
 
 using namespace std;
 
-class RankViewer;
+class RankDrawer;
 class TextureDrawer;
 
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
-class UDPServerViewer : public BaseViewer
+class RankingViewer : public BaseViewer
 {
 private:
 	int CountFrame;
@@ -27,22 +27,25 @@ private:
 	int State;								// 状態
 	TextureDrawer *RankingTitle;			// タイトル
 	TextureDrawer *ExpandTexture;			// ランク追加時に演出用のテクスチャ
-	RankViewer* InsertTemp;					// 追加予定のランキングビューア
-	std::vector<RankViewer*> Ranking;		// ランキング
-	std::vector<RankViewer*> InsertStack;	// 追加予定のスタック
+	RankDrawer* InsertTemp;					// 追加予定のランキングビューア
+	std::vector<RankDrawer*> Ranking;		// ランキング
+	std::vector<RankDrawer*> InsertStack;	// 追加予定のスタック
 
-	void SortRanking(RankViewer* Rank);
+	void SortRanking(RankDrawer* Rank);
 	void RankingMoveStart(int Num);
 	void RankingExpand();
 	void RankingInsert(void);
 
 public:
-	UDPServerViewer();
-	~UDPServerViewer();
-	void Update(void) override;
+	RankingViewer();
+	~RankingViewer();
+	void Start(void) override;
+	bool Update(void) override;
 	void Draw(void) override;
-	void CreateRankViewer(string PlayerName, string AILevel);
+	void Exit(void) override;
+	void CreateRankDrawer(string PlayerName, string AILevel);
 	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
+	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr) override;
 
 #if _DEBUG
 	void ClearRanking(void);

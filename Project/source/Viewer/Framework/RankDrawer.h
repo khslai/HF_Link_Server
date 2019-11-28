@@ -1,11 +1,11 @@
 //=============================================================================
 //
-// ランキング描画クラス [RankViewer.cpp]
+// ランキング描画クラス [RankDrawer.cpp]
 // Author : HAL東京 GP12B332 41 頼凱興
 //
 //=============================================================================
-#ifndef _RankViewer_H_
-#define _RankViewer_H_
+#ifndef _RankDrawer_H_
+#define _RankDrawer_H_
 
 #include <string>
 #include <vector>
@@ -13,12 +13,12 @@
 using namespace std;
 
 class TextViewer;
-class TextureDrawer;
+class SplitTextureDrawer;
 
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
-class RankViewer
+class RankDrawer
 {
 private:
 	// 順位
@@ -38,9 +38,9 @@ private:
 	// プレイヤーの名前表示
 	TextViewer *PlayerName;
 	// AIレベル表示
-	TextureDrawer *AILevelDrawer;
+	SplitTextureDrawer *AILevelDrawer;
 	// 順位表示
-	TextureDrawer *RankDrawer;
+	SplitTextureDrawer *Rank;
 
 	// テキストとテクスチャの描画位置を設定
 	void SetDrawPosition(void);
@@ -48,8 +48,8 @@ private:
 	void SplitAILevel(void);
 
 public:
-	RankViewer(string Name, string AILevelStr);
-	~RankViewer();
+	RankDrawer(string Name, string AILevelStr);
+	~RankDrawer();
 	void Update(void);
 	void Draw(void);
 	void CreateRankTexture(LPDIRECT3DTEXTURE9* Texture);

@@ -10,7 +10,6 @@
 #include "../Camera/FieldCamera.h"
 #include "GameState/GameInit.h"
 #include "GameState/GameIdle.h"
-#include "../EventActorBase.h"
 #include "../Actor/PlaceActor.h"
 #include "../Actor/CityActor.h"
 #include "../Effect/GameParticleManager.h"
@@ -126,12 +125,13 @@ void GameScene::Draw()
 	// 背景
 	Server->DrawBackground();
 
-	// パーティクル
+	// パーティクル(3D)
 	ParticleManager->Draw3DParticle();
 
 	// ランキング
 	Server->DrawRanking();
 
+	// パーティクル(2D)
 	ParticleManager->Draw2DParticle();
 }
 

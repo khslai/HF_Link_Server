@@ -4,11 +4,11 @@
 // Author : HAL“Œ‹ž GP12B332 41 —ŠŠM‹»
 //
 //=====================================
-#include "../../main.h"
+#include "../../../main.h"
 #include "PolygonDrawer.h"
 
-#include "../../Framework/Resource/ResourceManager.h"
-#include "../../Framework/Math/Easing.h"
+#include "../../../Framework/Resource/ResourceManager.h"
+#include "../../../Framework/Math/Easing.h"
 
 typedef struct DataStruct
 {
