@@ -159,19 +159,19 @@ bool RankingViewer::Update(void)
 	if (Debug::Button("Clear"))
 		ClearRanking();
 	else if (Debug::Button("123"))
-		CreateRankDrawer("Player", "123");
+		CreateRankDrawer("112233", "123");
 	else if (Debug::Button("123455"))
-		CreateRankDrawer("Player", "123455");
+		CreateRankDrawer("001234", "123455");
 	else if (Debug::Button("123456"))
-		CreateRankDrawer("Player", "123456");
+		CreateRankDrawer("000102", "123456");
 	else if (Debug::Button("123457"))
-		CreateRankDrawer("Player", "123457");
+		CreateRankDrawer("030405", "123457");
 	else if (Debug::Button("123456789"))
-		CreateRankDrawer("Player", "123456789");
+		CreateRankDrawer("060708", "123456789");
 	else if (Debug::Button("123456789123"))
-		CreateRankDrawer("Player", "123456789123");
+		CreateRankDrawer("091011", "123456789123");
 	else if (Debug::Button("123456789123456"))
-		CreateRankDrawer("Player", "123456789123456");
+		CreateRankDrawer("333435", "123456789123456");
 	Debug::End();
 #endif
 
@@ -302,6 +302,14 @@ void RankingViewer::RankingRecovery(void)
 
 	State = ViewerState::Recovery;
 	CountFrame = 0;
+}
+
+//=============================================================================
+// Å‰ºˆÊ‚ÌƒXƒRƒA‚ðŽæ“¾
+//=============================================================================
+string RankingViewer::GetLastScore(void)
+{
+	return Ranking.back()->GetAILevelStr();
 }
 
 //=============================================================================

@@ -44,8 +44,9 @@ public:
 	void Draw(void) override;
 	void CreateRankDrawer(string PlayerName, string AILevel);
 	void ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr) override;
-	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr) override;
-	void RankingRecovery(void) override;
+	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr);
+	void RankingRecovery(void);
+	string GetLastScore(void);
 #if _DEBUG
 	void ClearRanking(void);
 #endif

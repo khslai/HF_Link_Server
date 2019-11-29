@@ -51,6 +51,7 @@ private:
 	std::vector<sockaddr_in> ConnectedList;
 
 	void ReceivePacket(void);
+	void SendLastScore(void);
 	void PacketProcess(void);
 };
 

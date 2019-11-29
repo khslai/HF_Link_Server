@@ -106,7 +106,7 @@ void UDPServer::Update(void)
 	if (Debug::Button("RankInsert"))
 	{
 		Packet.at(Packet::Type) = std::to_string(Packet::InsertRank);
-		Packet.at(Packet::PlayerName) = "Player";
+		Packet.at(Packet::PlayerName) = "000000";
 		Packet.at(Packet::AILevel) = "123456654321";
 		RankStack.push_back(Packet);
 	}
@@ -140,7 +140,7 @@ void UDPServer::Update(void)
 	if (Debug::Button("SetTransition"))
 	{
 		LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
-		ViewerContainer.at(Viewer::State::Ranking)->CreateViewerTex(&ViewerTexture);
+		((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->CreateViewerTex(&ViewerTexture);
 		transition->SetTransition(0, ViewerTexture);
 	}
 
@@ -270,6 +270,14 @@ void UDPServer::ReceivePacket(void)
 }
 
 //=============================================================================
+// クライアントに最下位のスコアを送る
+//=============================================================================
+void UDPServer::SendLastScore(void)
+{
+	string Score = ((RankingViewer*)ViewerContainer.at(Viewer::Ranking))->GetLastScore();
+}
+
+//=============================================================================
 // パケットのを処理する
 //=============================================================================
 void UDPServer::PacketProcess(void)
@@ -334,7 +342,7 @@ void UDPServer::ChangeViewer(int NextViewer, int TransitionType)
 {
 	LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
 
-	ViewerContainer.at(Viewer::State::Ranking)->CreateViewerTex(&ViewerTexture);
+	((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->CreateViewerTex(&ViewerTexture);
 	transition->SetTransition(TransitionType, ViewerTexture);
 	background->SetBGTransition(NextViewer);
 
@@ -351,6 +359,6 @@ void UDPServer::RankingRecovery(void)
 	TaskManager::Instance()->CreateDelayedTask(60, [=]()
 	{
 		Current = Viewer::State::Ranking;
-		ViewerContainer.at(Viewer::State::Ranking)->RankingRecovery();
+		((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->RankingRecovery();
 	});
 }

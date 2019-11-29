@@ -57,6 +57,7 @@ public:
 	void Draw();
 	void LoadTexture(const char *path);
 	void LoadTexture(LPDIRECT3DTEXTURE9* Texture);
+	void SetSize(D3DXVECTOR2 Size);
 	void SetAlpha(float alpha);
 	void SetColor(D3DXCOLOR color);
 };
