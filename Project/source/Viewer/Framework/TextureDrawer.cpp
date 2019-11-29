@@ -34,7 +34,8 @@ TextureDrawer::~TextureDrawer()
 void TextureDrawer::Update()
 {
 	if (!InMove && !InScale &&
-		!InExpand && !InClose)
+		!InExpand && !InClose && 
+		!InFade)
 		return;
 
 	CountFrame++;
@@ -50,7 +51,8 @@ void TextureDrawer::Update()
 		{
 			StartPos = DestPos;
 			InMove = false;
-			Callback();
+			if (Callback != nullptr)
+				Callback();
 		}
 	}
 
@@ -64,7 +66,22 @@ void TextureDrawer::Update()
 		{
 			StartSize = TextureSize;
 			InScale = false;
-			Callback();
+			if (Callback != nullptr)
+				Callback();
+		}
+	}
+
+	if (InFade)
+	{
+		float Alpha = Easing::EaseValue(Time, StartAlpha, DestAlpha, EaseType::Linear);
+		SetAlpha(Alpha);
+
+		if (CountFrame >= Duration)
+		{
+			StartAlpha = DestAlpha;
+			InFade = false;
+			if (Callback != nullptr)
+				Callback();
 		}
 	}
 
@@ -86,7 +103,8 @@ void TextureDrawer::Update()
 		if (CountFrame >= Duration)
 		{
 			InExpand = false;
-			Callback();
+			if (Callback != nullptr)
+				Callback();
 		}
 	}
 
@@ -105,7 +123,8 @@ void TextureDrawer::Update()
 		{
 			Visible = false;
 			InClose = false;
-			Callback();
+			if (Callback != nullptr)
+				Callback();
 		}
 	}
 }
@@ -251,6 +270,9 @@ void TextureDrawer::Close_LeftRight(float Time)
 	Vertex[3].tex = D3DXVECTOR2(TexPercent, 1.0f);
 }
 
+//=============================================================================
+// テクスチャ移動
+//=============================================================================
 void TextureDrawer::Move(float Duration, D3DXVECTOR3 GoalPos, EaseType Type, std::function<void(void)> callback)
 {
 	InMove = true;
@@ -262,18 +284,24 @@ void TextureDrawer::Move(float Duration, D3DXVECTOR3 GoalPos, EaseType Type, std
 	Callback = callback;
 }
 
-void TextureDrawer::SetScale(float Duration, float Scale, EaseType Type, std::function<void(void)> callback)
+//=============================================================================
+// フェイド処理
+//=============================================================================
+void TextureDrawer::Fade(float Duration, float DestAlpha, std::function<void(void)> callback)
 {
-	InScale = true;
+	D3DXCOLOR Color = Vertex[0].diffuse;
+	InFade = true;
 	CountFrame = 0;
 	this->Duration = Duration;
-	StartSize = TextureSize;
-	DestScale = Scale;
-	easeType = Type;
+	StartAlpha = Color.a;
+	this->DestAlpha = DestAlpha;
 	Callback = callback;
 }
 
-void TextureDrawer::Expand(float Duration, int expandType, EaseType Type, std::function<void(void)> callback)
+//=============================================================================
+// テクスチャ展開
+//=============================================================================
+void TextureDrawer::Expand(float Duration, ExpandType expandType, EaseType Type, std::function<void(void)> callback)
 {
 	InExpand = true;
 	Visible = false;
@@ -284,12 +312,15 @@ void TextureDrawer::Expand(float Duration, int expandType, EaseType Type, std::f
 	Callback = callback;
 }
 
-void TextureDrawer::Close(float Duration, int closeType, EaseType Type, std::function<void(void)> callback)
+//=============================================================================
+// テクスチャ表示終了
+//=============================================================================
+void TextureDrawer::Close(float Duration, CloseType closeType, EaseType Type, std::function<void(void)> callback)
 {
 	InClose = true;
 	CountFrame = 0;
 	this->Duration = Duration;
-	this->expandType = closeType;
+	this->closeType = closeType;
 	easeType = Type;
 	Callback = callback;
 }
@@ -309,4 +340,18 @@ void TextureDrawer::SetPosition(D3DXVECTOR3 Pos)
 void TextureDrawer::SetScale(float Scale)
 {
 	TextureSize *= Scale;
+}
+
+//=============================================================================
+// テクスチャ拡大、縮小
+//=============================================================================
+void TextureDrawer::SetScale(float Duration, float Scale, EaseType Type, std::function<void(void)> callback)
+{
+	InScale = true;
+	CountFrame = 0;
+	this->Duration = Duration;
+	StartSize = TextureSize;
+	DestScale = Scale;
+	easeType = Type;
+	Callback = callback;
 }

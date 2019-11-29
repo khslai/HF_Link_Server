@@ -12,6 +12,7 @@
 
 #include "GameConfig.h"
 #include "Scene/GameScene.h"
+#include "Scene/TextureTestScene.h"
 
 /**************************************
 コンストラクタ
@@ -21,6 +22,7 @@ GameMain::GameMain(HINSTANCE hInstance, HWND hWnd) :
 {
 	//シーンマネージャにシーンのインスタンスを追加
 	sceneManager->Add(GameConfig::SceneID::Game, new GameScene(renderTexture, renderSurface));
+	sceneManager->Add(GameConfig::SceneID::TextureTest, new TextureTestScene(renderTexture, renderSurface));
 
 	//初期シーンに遷移
 	const int InitScene = GameConfig::SceneID::Game;
@@ -33,4 +35,13 @@ GameMain::GameMain(HINSTANCE hInstance, HWND hWnd) :
 void GameMain::Update()
 {
 	BaseGame::Update();
+
+	Debug::Begin("Scene");
+
+	if (Debug::Button("Game"))
+		sceneManager->ChangeScene(GameConfig::Game);
+	else if (Debug::Button("TextureTest"))
+		sceneManager->ChangeScene(GameConfig::TextureTest);
+
+	Debug::End();
 }

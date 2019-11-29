@@ -237,6 +237,7 @@
     <ClCompile Include="source\Scene\GameScene.cpp" />
     <ClCompile Include="source\Scene\GameState\GameIdle.cpp" />
     <ClCompile Include="source\Scene\GameState\GameInit.cpp" />
+    <ClCompile Include="source\Scene\TextureTestScene.cpp" />
     <ClCompile Include="source\Viewer\Background.cpp" />
     <ClCompile Include="source\Viewer\EventLiveViewer.cpp" />
     <ClCompile Include="source\Viewer\Framework\BaseTextureDrawer.cpp" />
@@ -245,6 +246,7 @@
     <ClCompile Include="source\Viewer\Framework\SplitTextureDrawer.cpp" />
     <ClCompile Include="source\Viewer\Framework\TextureDrawer.cpp" />
     <ClCompile Include="source\Viewer\RankingViewer.cpp" />
+    <ClCompile Include="source\Viewer\TextureTest.cpp" />
     <ClCompile Include="source\Viewer\Transition.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -370,6 +372,7 @@
     <ClInclude Include="source\Scene\GameScene.h" />
     <ClInclude Include="source\Scene\GameState\GameIdle.h" />
     <ClInclude Include="source\Scene\GameState\GameInit.h" />
+    <ClInclude Include="source\Scene\TextureTestScene.h" />
     <ClInclude Include="source\Viewer\Background.h" />
     <ClInclude Include="source\Viewer\BaseViewer.h" />
     <ClInclude Include="source\Viewer\EventLiveViewer.h" />
@@ -379,6 +382,7 @@
     <ClInclude Include="source\Viewer\Framework\SplitTextureDrawer.h" />
     <ClInclude Include="source\Viewer\Framework\TextureDrawer.h" />
     <ClInclude Include="source\Viewer\RankingViewer.h" />
+    <ClInclude Include="source\Viewer\TextureTest.h" />
     <ClInclude Include="source\Viewer\Transition.h" />
     <ClInclude Include="source\Viewer\ViewerConfig.h" />
   </ItemGroup>

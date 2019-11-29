@@ -18,6 +18,8 @@ class TextureDrawer : public BaseTextureDrawer
 private:
 	float Duration;
 	float DestScale;
+	float StartAlpha;
+	float DestAlpha;
 	D3DXVECTOR3 StartPos;
 	D3DXVECTOR3 DestPos;
 	D3DXVECTOR2 StartSize;
@@ -39,9 +41,10 @@ public:
 	void SetPosition(D3DXVECTOR3 Pos);
 	void SetScale(float Scale);
 	void SetScale(float Duration, float Scale, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
-	void Expand(float Duration, int expandType, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
-	void Close(float Duration, int closeType, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
+	void Expand(float Duration, ExpandType expandType, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
+	void Close(float Duration, CloseType closeType, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
 	void Move(float Duration, D3DXVECTOR3 DestPos, EaseType Type = EaseType::Linear, std::function<void(void)> callback = nullptr);
+	void Fade(float Duration, float DestAlpha, std::function<void(void)> callback = nullptr);
 };
 
 #endif

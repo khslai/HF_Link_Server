@@ -8,6 +8,7 @@
 #define _BaseTextureDrawer_H_
 
 #include "../../../Framework/Math/Easing.h"
+#include <functional>
 
 //*****************************************************************************
 // マクロ定義
@@ -37,6 +38,12 @@ enum CloseType
 	FromUpDown,
 };
 
+enum FadeType
+{
+	In,
+	Out,
+};
+
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
@@ -48,13 +55,14 @@ protected:
 	VERTEX_2D Vertex[NUM_VERTEX];
 	LPDIRECT3DTEXTURE9 Texture = nullptr;
 	EaseType easeType;
+	ExpandType expandType;
+	CloseType closeType;
 	int CountFrame = 0;
-	int expandType = 0;
-	int closeType = 0;
 	bool InMove = false;
 	bool InScale = false;
 	bool InExpand = false;
 	bool InClose = false;
+	bool InFade = false;
 	bool Visible = true;
 
 public:

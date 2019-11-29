@@ -16,6 +16,7 @@ namespace GameConfig
 	enum SceneID
 	{
 		Game,
+		TextureTest,
 		Max
 	};
 
