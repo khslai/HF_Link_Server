@@ -6,14 +6,16 @@
 //=============================================================================
 #include "../../main.h"
 #include "EventLiveViewer.h"
-#include "Framework/SplitTextureDrawer.h"
+#include "Framework/TextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
 #include "../EventConfig.h"
+#include "../Viewer/ViewerConfig.h"
 
 #include "../../Framework/Network/PacketConfig.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Math/Easing.h"
+#include "../../Framework/Task/TaskManager.h"
 
 enum ViewerState
 {
@@ -22,13 +24,6 @@ enum ViewerState
 	MessageStop,
 	MessageExit,
 	TelopClose,
-};
-
-enum FieldLevel
-{
-	City,
-	World,
-	Space,
 };
 
 enum TelopBGType
@@ -55,11 +50,17 @@ enum MessageType
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-EventLiveViewer::EventLiveViewer()
+EventLiveViewer::EventLiveViewer(std::function<void()> recovery)
 {
-	TelopBG = new SplitTextureDrawer(1, 2, D3DXVECTOR2(SCREEN_WIDTH, 512.0f), false);
+	TelopBG = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 256.0f), 1, 2, false);
 	TelopBG->LoadTexture("data/TEXTURE/Viewer/EventLiveViewer/BG.png");
 	TelopBG->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f));
+
+	EventMessage = new TextureDrawer(D3DXVECTOR2(1024.0f, 768.0f), 1, 6);
+	EventMessage->LoadTexture("data/TEXTURE/Viewer/EventLiveViewer/Text.png");
+	EventMessage->SetPosition(D3DXVECTOR3(-512.0f, SCREEN_CENTER_Y, 0.0f));
+
+	Recovery = recovery;
 }
 
 //=============================================================================
@@ -71,54 +72,80 @@ EventLiveViewer::~EventLiveViewer()
 	SAFE_DELETE(EventMessage);
 }
 
-void EventLiveViewer::Start(void)
-{
-
-}
-
 //=============================================================================
 // 更新
 //=============================================================================
 bool EventLiveViewer::Update(void)
 {
-	if (!InActive)
-		return true;
-
-	if (!InIdle)
+	if (State == TelopExpand)
 	{
-		CountFrame++;
-		float Time = (float)CountFrame / 60;
-
-		if (State == TelopExpand)
+		if (!ActionFlag)
 		{
-			TelopBG->Expand_ToUpDown(Time, EaseType::InQuart);
-		}
-		else if (State == MessageDebut)
-		{
-
-		}
-		else if (State == MessageStop)
-		{
-
-		}
-		else if (State == MessageExit)
-		{
-
-		}
-		else if (State == TelopClose)
-		{
-
-		}
-
-		if (Time >= 1.0f)
-		{
-			State++;
-			CountFrame = 0;
-
-			if (State > TelopClose)
+			TelopBG->Expand(60.0f, ExpandType::ToUpDown, EaseType::InQuart, [&]()
 			{
-				InIdle = true;
-			}
+				SetState(ViewerState::MessageDebut);
+				SetActionFlag(false);
+			});
+			ActionFlag = true;
+		}
+		else
+		{
+			TelopBG->Update();
+		}
+	}
+	else if (State == MessageDebut)
+	{
+		if (!ActionFlag)
+		{
+			EventMessage->Move(120.0f, D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), EaseType::OutQuart, [&]()
+			{
+				SetState(ViewerState::MessageStop);
+				SetActionFlag(false);
+			});
+			ActionFlag = true;
+		}
+		else
+		{
+			EventMessage->Update();
+		}
+	}
+	else if (State == MessageStop)
+	{
+		TaskManager::Instance()->CreateDelayedTask(15, [&]()
+		{
+			SetState(ViewerState::MessageExit);
+			SetActionFlag(false);
+		});
+	}
+	else if (State == MessageExit)
+	{
+		if (!ActionFlag)
+		{
+			EventMessage->Move(120.0f, D3DXVECTOR3(SCREEN_WIDTH + 512.0f, SCREEN_CENTER_Y, 0.0f), EaseType::InQuart, [&]()
+			{
+				SetState(ViewerState::TelopClose);
+				SetActionFlag(false);
+			});
+			ActionFlag = true;
+		}
+		else
+		{
+			EventMessage->Update();
+		}
+	}
+	else if (State == TelopClose)
+	{
+		if (!ActionFlag)
+		{
+			TelopBG->Close(60.0f, CloseType::FromUpDown, EaseType::OutQuart, [&]()
+			{
+				Recovery();
+			});
+			ActionFlag = true;
+		}
+		else
+		{
+			TelopBG->Update();
 		}
 	}
 
@@ -131,29 +158,21 @@ bool EventLiveViewer::Update(void)
 void EventLiveViewer::Draw(void)
 {
 	TelopBG->Draw();
-	//EventMessage->Draw();
-}
-
-void EventLiveViewer::Exit(void)
-{
-
+	EventMessage->Draw();
 }
 
 //=============================================================================
 // パケットの内容を処理
 //=============================================================================
-void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
+void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr)
 {
-	if (PacketType != Packet::InsertRank)
-		return;
-
 	TelopBGIndex = 0;
 	MessageIndex = 0;
 	int EventNo = std::stoi(SpliteStr.at(Packet::EventNo));
-	int FieldLevel = std::stoi(SpliteStr.at(Packet::FieldLevel));
 
 	if (EventNo == EventConfig::NewCity)
 	{
+		int FieldLevel = std::stoi(SpliteStr.at(Packet::FieldLevel));
 		TelopBGIndex = PlusEvent;
 		if (FieldLevel == FieldLevel::City)
 		{
@@ -183,4 +202,10 @@ void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<string>& S
 		TelopBGIndex = MinusEvent;
 		MessageIndex = AIStrike;
 	}
+
+	TelopBG->SetIndex(TelopBGIndex);
+	EventMessage->SetIndex(MessageIndex);
+	EventMessage->SetPosition(D3DXVECTOR3(-512.0f, SCREEN_CENTER_Y, 0.0f));
+	State = ViewerState::TelopExpand;
+	ActionFlag = false;
 }

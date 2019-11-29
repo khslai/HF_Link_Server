@@ -9,11 +9,19 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 #include "BaseViewer.h"
 
 using namespace std;
 
-class SplitTextureDrawer;
+class TextureDrawer;
+
+enum FieldLevel
+{
+	City,
+	World,
+	Space,
+};
 
 //*****************************************************************************
 // ÉNÉâÉXíËã`
@@ -23,20 +31,22 @@ class EventLiveViewer : public BaseViewer
 private:
 	int State;								// èÛë‘
 	int CountFrame;
-	bool InActive;
+	bool ActionFlag;
 	int TelopBGIndex;
 	int MessageIndex;
-	SplitTextureDrawer *TelopBG;
-	SplitTextureDrawer *EventMessage;
+	TextureDrawer *TelopBG;
+	TextureDrawer *EventMessage;
 
 public:
-	EventLiveViewer();
+	std::function<void(void)> Recovery;
+
+	EventLiveViewer(std::function<void(void)> recovery);
 	~EventLiveViewer();
-	void Start(void) override;
 	bool Update(void) override;
 	void Draw(void) override;
-	void Exit(void) override;
-	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
+	void SetState(int State) { this->State = State; };
+	void SetActionFlag(bool Flag) { this->ActionFlag = Flag; };
+	void ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr) override;
 };
 
 #endif

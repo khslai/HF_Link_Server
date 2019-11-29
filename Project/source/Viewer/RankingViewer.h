@@ -30,6 +30,7 @@ private:
 	RankDrawer* InsertTemp;					// 追加予定のランキングビューア
 	std::vector<RankDrawer*> Ranking;		// ランキング
 	std::vector<RankDrawer*> InsertStack;	// 追加予定のスタック
+	std::function<void(bool)> SetIdle;
 
 	void SortRanking(RankDrawer* Rank);
 	void RankingMoveStart(int Num);
@@ -37,16 +38,14 @@ private:
 	void RankingInsert(void);
 
 public:
-	RankingViewer();
+	RankingViewer(std::function<void(bool)> setIdle);
 	~RankingViewer();
-	void Start(void) override;
 	bool Update(void) override;
 	void Draw(void) override;
-	void Exit(void) override;
 	void CreateRankDrawer(string PlayerName, string AILevel);
-	void ReceivePacket(int PacketType, const std::vector<string>& SpliteStr);
+	void ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr) override;
 	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr) override;
-
+	void RankingRecovery(void) override;
 #if _DEBUG
 	void ClearRanking(void);
 #endif

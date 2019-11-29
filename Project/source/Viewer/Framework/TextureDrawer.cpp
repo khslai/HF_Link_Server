@@ -9,13 +9,29 @@
 #include "../../../Framework/Math/Easing.h"
 
 //=============================================================================
-// コンストラクタ
+// コンストラクタ(分割ないテクスチャ用)
 //=============================================================================
-TextureDrawer::TextureDrawer(D3DXVECTOR2 TextureSize, bool Visible) :
+TextureDrawer::TextureDrawer(D3DXVECTOR2 Size, bool Visible) :
 	DestScale(1.0f),
-	StartSize(TextureSize)
+	Devide(D3DXVECTOR2(1.0f,1.0f)),
+	UnitUV(D3DXVECTOR2(1.0f,1.0f)),
+	Index(D3DXVECTOR2(0.0f,0.0f))
 {
-	this->TextureSize = TextureSize;
+	this->Size = Size;
+	this->Visible = Visible;
+	MakeVertex();
+}
+
+//=============================================================================
+// コンストラクタ(分割あるテクスチャ用)
+//=============================================================================
+TextureDrawer::TextureDrawer(D3DXVECTOR2 Size, int DevideX, int DevideY, bool Visible) :
+	DestScale(1.0f),
+	Devide(D3DXVECTOR2((float)DevideX, (float)DevideY)),
+	UnitUV(D3DXVECTOR2(1.0f / DevideX, 1.0f / DevideY)),
+	Index(D3DXVECTOR2(0.0f, 0.0f))
+{
+	this->Size = D3DXVECTOR2(Size.x / DevideX, Size.y / DevideY);
 	this->Visible = Visible;
 	MakeVertex();
 }
@@ -34,7 +50,7 @@ TextureDrawer::~TextureDrawer()
 void TextureDrawer::Update()
 {
 	if (!InMove && !InScale &&
-		!InExpand && !InClose && 
+		!InExpand && !InClose &&
 		!InFade)
 		return;
 
@@ -59,18 +75,19 @@ void TextureDrawer::Update()
 	// 拡大、縮小
 	if (InScale)
 	{
-		TextureSize = Easing::EaseValue(Time, StartSize, StartSize * DestScale, easeType);
+		Size = Easing::EaseValue(Time, StartSize, StartSize * DestScale, easeType);
 		SetVertex();
 
 		if (CountFrame >= Duration)
 		{
-			StartSize = TextureSize;
+			StartSize = Size;
 			InScale = false;
 			if (Callback != nullptr)
 				Callback();
 		}
 	}
 
+	// フェイド
 	if (InFade)
 	{
 		float Alpha = Easing::EaseValue(Time, StartAlpha, DestAlpha, EaseType::Linear);
@@ -85,6 +102,7 @@ void TextureDrawer::Update()
 		}
 	}
 
+	// 展開
 	if (InExpand)
 	{
 		if (expandType == ExpandType::LeftToRight)
@@ -99,6 +117,10 @@ void TextureDrawer::Update()
 		{
 			Expand_ToUpDown(Time);
 		}
+		else if (expandType == ExpandType::ToLeftRight)
+		{
+			Expand_ToLeftRight(Time);
+		}
 
 		if (CountFrame >= Duration)
 		{
@@ -108,6 +130,7 @@ void TextureDrawer::Update()
 		}
 	}
 
+	// 終了
 	if (InClose)
 	{
 		if (closeType == CloseType::FromUpDown)
@@ -155,10 +178,10 @@ void TextureDrawer::MakeVertex()
 //=============================================================================
 void TextureDrawer::SetVertex()
 {
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2, -Size.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2, -Size.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2, Size.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2, Size.y / 2, 0.0f);
 }
 
 //=============================================================================
@@ -166,10 +189,15 @@ void TextureDrawer::SetVertex()
 //=============================================================================
 void TextureDrawer::SetTexture(void)
 {
-	Vertex[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	Vertex[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	//Vertex[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	//Vertex[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+	//Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	//Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x, Index.y * UnitUV.y);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, Index.y * UnitUV.y);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x, (Index.y + 1) * UnitUV.y);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, (Index.y + 1) * UnitUV.y);
 }
 
 //=============================================================================
@@ -179,17 +207,17 @@ void TextureDrawer::Expand_LeftToRight(float Time)
 {
 	Visible = true;
 	float VtxPercent = Easing::EaseValue(Time, -1.0f, 1.0f, easeType);
-	float TexPercent = Easing::EaseValue(Time, 0.0f, 1.0f, easeType);
+	float TexPercent = Easing::EaseValue(Time, 0.0f, UnitUV.x, easeType);
 
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, -TextureSize.y / 2, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, TextureSize.y / 2, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2, -Size.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2, Size.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
 
-	Vertex[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	Vertex[1].tex = D3DXVECTOR2(TexPercent, 0.0f);
-	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	Vertex[3].tex = D3DXVECTOR2(TexPercent, 1.0f);
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x, Index.y * UnitUV.y);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * TexPercent, Index.y * UnitUV.y);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x, (Index.y + 1) * UnitUV.y);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * TexPercent, (Index.y + 1) * UnitUV.y);
 }
 
 //=============================================================================
@@ -199,17 +227,17 @@ void TextureDrawer::Expand_RightToLeft(float Time)
 {
 	Visible = true;
 	float VtxPercent = Easing::EaseValue(Time, -1.0f, 1.0f, easeType);
-	float TexPercent = Easing::EaseValue(Time, 1.0f, 0.0f, easeType);
+	float TexPercent = Easing::EaseValue(Time, UnitUV.x, 0.0f, easeType);
 
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2 * VtxPercent, -TextureSize.y / 2, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2 * VtxPercent, TextureSize.y / 2, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2, -Size.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2, Size.y / 2, 0.0f);
 
-	Vertex[0].tex = D3DXVECTOR2(TexPercent, 0.0f);
-	Vertex[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	Vertex[2].tex = D3DXVECTOR2(TexPercent, 1.0f);
-	Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x + TexPercent, Index.y * UnitUV.y);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, Index.y * UnitUV.y);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x + TexPercent, (Index.y + 1) * UnitUV.y);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, (Index.y + 1) * UnitUV.y);
 }
 
 //=============================================================================
@@ -219,17 +247,37 @@ void TextureDrawer::Expand_ToUpDown(float Time)
 {
 	Visible = true;
 	float VtxPercent = Easing::EaseValue(Time, 0.0f, 1.0f, easeType);
-	float TexPercent = Easing::EaseValue(Time, 0.5f, 0.0f, easeType);
+	float TexPercent = Easing::EaseValue(Time, UnitUV.y / 2, 0.0f, easeType);
 
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2, -Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2, -Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2, Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2, Size.y / 2 * VtxPercent, 0.0f);
 
-	Vertex[0].tex = D3DXVECTOR2(0.0f, TexPercent);
-	Vertex[1].tex = D3DXVECTOR2(1.0f, TexPercent);
-	Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f - TexPercent);
-	Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f - TexPercent);
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x, Index.y * UnitUV.y + TexPercent);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, Index.y * UnitUV.y + TexPercent);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x, (Index.y + 1) * UnitUV.y - TexPercent);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, (Index.y + 1) * UnitUV.y - TexPercent);
+}
+
+//=============================================================================
+// テクスチャ展開演出処理
+//=============================================================================
+void TextureDrawer::Expand_ToLeftRight(float Time)
+{
+	Visible = true;
+	float VtxPercent = Easing::EaseValue(Time, 0.0f, 1.0f, easeType);
+	float TexPercent = Easing::EaseValue(Time, UnitUV.x / 2, 0.0f, easeType);
+
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
+
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x + TexPercent, Index.y * UnitUV.y);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x - TexPercent, Index.y * UnitUV.y);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x + TexPercent, (Index.y + 1) * UnitUV.y);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x - TexPercent, (Index.y + 1) * UnitUV.y);
 }
 
 //=============================================================================
@@ -238,17 +286,17 @@ void TextureDrawer::Expand_ToUpDown(float Time)
 void TextureDrawer::Close_UpDown(float Time)
 {
 	float VtxPercent = Easing::EaseValue(Time, 1.0f, 0.0f, easeType);
-	float TexPercent = Easing::EaseValue(Time, 1.0f, 0.5f, easeType);
+	float TexPercent = Easing::EaseValue(Time, 0.0f, 0.5f, easeType);
 
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, -TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2, TextureSize.y / 2 * VtxPercent, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2, -Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2, -Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2, Size.y / 2 * VtxPercent, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2, Size.y / 2 * VtxPercent, 0.0f);
 
-	Vertex[0].tex = D3DXVECTOR2(0.0f, 1.0f - TexPercent);
-	Vertex[1].tex = D3DXVECTOR2(1.0f, 1.0f - TexPercent);
-	Vertex[2].tex = D3DXVECTOR2(0.0f, TexPercent);
-	Vertex[3].tex = D3DXVECTOR2(1.0f, TexPercent);
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x, Index.y * UnitUV.y + (UnitUV.y * TexPercent));
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, Index.y * UnitUV.y + (UnitUV.y * TexPercent));
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x, (Index.y + 1) * UnitUV.y - (UnitUV.y * TexPercent));
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, (Index.y + 1) * UnitUV.y - (UnitUV.y * TexPercent));
 }
 
 //=============================================================================
@@ -257,17 +305,17 @@ void TextureDrawer::Close_UpDown(float Time)
 void TextureDrawer::Close_LeftRight(float Time)
 {
 	float VtxPercent = Easing::EaseValue(Time, 1.0f, 0.0f, easeType);
-	float TexPercent = Easing::EaseValue(Time, 1.0f, 0.5f, easeType);
+	float TexPercent = Easing::EaseValue(Time, 0.0f, 0.5f, easeType);
 
-	Vertex[0].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2 * VtxPercent, -TextureSize.y / 2, 0.0f);
-	Vertex[1].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, -TextureSize.y / 2, 0.0f);
-	Vertex[2].vtx = Position + D3DXVECTOR3(-TextureSize.x / 2 * VtxPercent, TextureSize.y / 2, 0.0f);
-	Vertex[3].vtx = Position + D3DXVECTOR3(TextureSize.x / 2 * VtxPercent, TextureSize.y / 2, 0.0f);
+	Vertex[0].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[1].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, -Size.y / 2, 0.0f);
+	Vertex[2].vtx = Position + D3DXVECTOR3(-Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
+	Vertex[3].vtx = Position + D3DXVECTOR3(Size.x / 2 * VtxPercent, Size.y / 2, 0.0f);
 
-	Vertex[0].tex = D3DXVECTOR2(1.0f - TexPercent, 0.0f);
-	Vertex[1].tex = D3DXVECTOR2(TexPercent, 0.0f);
-	Vertex[2].tex = D3DXVECTOR2(1.0f - TexPercent, 1.0f);
-	Vertex[3].tex = D3DXVECTOR2(TexPercent, 1.0f);
+	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x + (UnitUV.x * TexPercent), Index.y * UnitUV.y);
+	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x - (UnitUV.x * TexPercent), Index.y * UnitUV.y);
+	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x + (UnitUV.x * TexPercent), (Index.y + 1) * UnitUV.y);
+	Vertex[3].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x - (UnitUV.x * TexPercent), (Index.y + 1) * UnitUV.y);
 }
 
 //=============================================================================
@@ -318,6 +366,7 @@ void TextureDrawer::Expand(float Duration, ExpandType expandType, EaseType Type,
 void TextureDrawer::Close(float Duration, CloseType closeType, EaseType Type, std::function<void(void)> callback)
 {
 	InClose = true;
+	Visible = true;
 	CountFrame = 0;
 	this->Duration = Duration;
 	this->closeType = closeType;
@@ -335,11 +384,31 @@ void TextureDrawer::SetPosition(D3DXVECTOR3 Pos)
 }
 
 //=============================================================================
+// 描画UV設定
+//=============================================================================
+void TextureDrawer::SetIndex(int Index)
+{
+	this->Index.x = (float)(Index % (int)Devide.x);
+	this->Index.y = (float)(Index / (int)Devide.x);
+	SetTexture();
+}
+
+//=============================================================================
+// 描画UV設定
+//=============================================================================
+void TextureDrawer::SetIndex(int x, int y)
+{
+	this->Index.x = (float)x;
+	this->Index.y = (float)y;
+	SetTexture();
+}
+
+//=============================================================================
 // サイズ設定
 //=============================================================================
 void TextureDrawer::SetScale(float Scale)
 {
-	TextureSize *= Scale;
+	Size *= Scale;
 }
 
 //=============================================================================
@@ -350,7 +419,7 @@ void TextureDrawer::SetScale(float Duration, float Scale, EaseType Type, std::fu
 	InScale = true;
 	CountFrame = 0;
 	this->Duration = Duration;
-	StartSize = TextureSize;
+	StartSize = Size;
 	DestScale = Scale;
 	easeType = Type;
 	Callback = callback;

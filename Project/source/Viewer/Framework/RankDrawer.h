@@ -13,7 +13,7 @@
 using namespace std;
 
 class TextViewer;
-class SplitTextureDrawer;
+class TextureDrawer;
 
 //*****************************************************************************
 // クラス定義
@@ -30,7 +30,7 @@ private:
 	// 描画の中心座標
 	D3DXVECTOR3 CenterPos;
 	// 移動先座標
-	D3DXVECTOR3 DestPos;
+	D3DXVECTOR3 StartPos;
 	// AIレベル描画の基準座標
 	D3DXVECTOR3 AILevelBasePos;
 	// 分割したAIレベル
@@ -38,9 +38,9 @@ private:
 	// プレイヤーの名前表示
 	TextViewer *PlayerName;
 	// AIレベル表示
-	SplitTextureDrawer *AILevelDrawer;
+	TextureDrawer *AILevelDrawer;
 	// 順位表示
-	SplitTextureDrawer *Rank;
+	TextureDrawer *Rank;
 
 	// テキストとテクスチャの描画位置を設定
 	void SetDrawPosition(void);
@@ -54,8 +54,10 @@ public:
 	void Draw(void);
 	void CreateRankTexture(LPDIRECT3DTEXTURE9* Texture);
 	void SetPosition(D3DXVECTOR3 Pos);
+	void SetStartPos(D3DXVECTOR3 Pos) { this->StartPos = Pos; };
 	void SetRankNum(int RankNum) { this->RankNum = RankNum; };
 	D3DXVECTOR3 GetPosition(void) { return this->CenterPos; };
+	D3DXVECTOR3 GetStartPos(void) { return this->StartPos; };
 	unsigned long long GetAILevel(void);
 };
 

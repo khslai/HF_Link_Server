@@ -6,7 +6,7 @@
 //=============================================================================
 #include "../../main.h"
 #include "Transition.h"
-#include "Framework/TextureDrawer.h"
+#include "../Viewer/Framework/TextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
 #include "../Camera/FieldCamera.h"
 

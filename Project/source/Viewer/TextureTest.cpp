@@ -14,9 +14,10 @@
 //=============================================================================
 TextureTest::TextureTest()
 {
-	Texture = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f), false);
-	Texture->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
+	Texture = new TextureDrawer(D3DXVECTOR2(1024.0f, 768.0f), 1, 6, false);
+	Texture->LoadTexture("data/TEXTURE/Viewer/EventLiveViewer/Text.png");
 	Texture->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f));
+	Texture->SetIndex(4);
 }
 
 //=============================================================================
@@ -54,6 +55,8 @@ void TextureTest::Update()
 		Texture->Expand(60.0f, ExpandType::RightToLeft, EaseType::InQuart);
 	else if (Debug::Button("Expand_ToUpDown"))
 		Texture->Expand(60.0f, ExpandType::ToUpDown, EaseType::InQuart);
+	else if (Debug::Button("Expand_ToLeftRight"))
+		Texture->Expand(60.0f, ExpandType::ToLeftRight, EaseType::InQuart);
 	else if (Debug::Button("Close_FromUpDown"))
 		Texture->Close(60.0f, CloseType::FromUpDown, EaseType::InQuart);
 	else if (Debug::Button("Close_FromLeftRight"))

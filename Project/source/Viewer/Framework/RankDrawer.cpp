@@ -6,7 +6,7 @@
 //=============================================================================
 #include "../../../main.h"
 #include "RankDrawer.h"
-#include "SplitTextureDrawer.h"
+#include "TextureDrawer.h"
 
 #include "../../../Framework/Renderer2D/TextViewer.h"
 #include "../../../Framework/String/String.h"
@@ -28,14 +28,14 @@ RankDrawer::RankDrawer(string Name, string AILevelStr) :
 	InScreen(true),
 	AILevelStr(AILevelStr)
 {
-	Rank = new SplitTextureDrawer(4, 3, D3DXVECTOR2(1024.0f, 384.0f));
+	Rank = new TextureDrawer(D3DXVECTOR2(1024.0f, 384.0f), 4, 3);
 	Rank->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
 
 	PlayerName = new TextViewer("data/TEXTURE/Viewer/RankingViewer/Text_cinecaption226.ttf", 80);
 	PlayerName->SetColor(D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
 	PlayerName->SetText(Name);
 
-	AILevelDrawer = new SplitTextureDrawer(4, 3, D3DXVECTOR2(512.0f, 384.0f));
+	AILevelDrawer = new TextureDrawer(D3DXVECTOR2(512.0f, 384.0f), 4, 3);
 	AILevelDrawer->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Number.png");
 
 	SetDrawPosition();

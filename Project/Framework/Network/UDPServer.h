@@ -30,33 +30,28 @@ public:
 	void Update(void);
 	void DrawRanking(void);
 	void DrawBackground(void);
+	void ChangeViewer(int NextViewer, int TransitionType);
+	void SetIdle(bool Flag) { this->InIdle = Flag; };
+	void RankingRecovery(void);
+	void ClearEventStack(void) { EventStack.clear(); };
 
-	// マルチスレッド用
+	// マルチスレッド用	
 	static HANDLE Thread;
 	static unsigned __stdcall ThreadEntryPoint(void* This);
-
-	////ステートを表す列挙子
-	//enum State
-	//{
-	//	Ranking,
-	//	Event,
-	//	//LevelUp,
-	//	Max
-	//};
 
 private:
 	Background *background;
 	Transition *transition;
 	SOCKET ServerSocket;
 	int Current;
-	bool InInsertRank;
+	bool InIdle = true;
 	std::vector<BaseViewer*> ViewerContainer;
-	std::vector<std::vector<string>> PacketStack;		// 追加予定のランク
+	std::vector<std::vector<string>> RankStack;		// 追加予定のランク
+	std::vector<std::vector<string>> EventStack;	// 追加予定のランク
 	std::vector<sockaddr_in> ConnectedList;
 
 	void ReceivePacket(void);
 	void PacketProcess(void);
-	void ChangeViewer(int NextViewer,int TransitionType);
 };
 
 #endif

@@ -14,11 +14,10 @@
 #include "../../source/Viewer/RankingViewer.h"
 #include "../../source/Viewer/EventLiveViewer.h"
 #include "../../source/Viewer/Background.h"
-#include "../../source/Viewer/Transition.h"
+#include "../../source/Transition/Transition.h"
 #include "../../source/Viewer/ViewerConfig.h"
 #include "../../source/Effect/GameParticleManager.h"
 #include "../../source/EventConfig.h"
-
 
 
 //*****************************************************************************
@@ -36,8 +35,8 @@ UDPServer::UDPServer() :
 	transition = new Transition();
 
 	ViewerContainer.resize(Viewer::State::Max);
-	ViewerContainer[Viewer::State::Ranking] = new RankingViewer();
-	ViewerContainer[Viewer::State::EventLive] = new EventLiveViewer();
+	ViewerContainer[Viewer::State::Ranking] = new RankingViewer([&](bool Flag) {SetIdle(Flag); });
+	ViewerContainer[Viewer::State::EventLive] = new EventLiveViewer([&]() {RankingRecovery(); });
 
 	// WinSock初期化
 	WSADATA wsaData;
@@ -109,49 +108,42 @@ void UDPServer::Update(void)
 		Packet.at(Packet::Type) = std::to_string(Packet::InsertRank);
 		Packet.at(Packet::PlayerName) = "Player";
 		Packet.at(Packet::AILevel) = "123456654321";
+		RankStack.push_back(Packet);
 	}
 	else if (Debug::Button("NewCity"))
 	{
 		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = EventConfig::NewCity;
+		Packet.at(Packet::EventNo) = std::to_string(EventConfig::NewCity);
+		Packet.at(Packet::FieldLevel) = std::to_string(FieldLevel::Space);
 	}
 	else if (Debug::Button("Meteor"))
 	{
 		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = EventConfig::CityDestroy;
+		Packet.at(Packet::EventNo) = std::to_string(EventConfig::CityDestroy);
 	}
 	else if (Debug::Button("AIStrike"))
 	{
 		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = EventConfig::BanStockUse;
+		Packet.at(Packet::EventNo) = std::to_string(EventConfig::BanStockUse);
 	}
 	else if (Debug::Button("UFO"))
 	{
 		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = EventConfig::AILevelDecrease;
+		Packet.at(Packet::EventNo) = std::to_string(EventConfig::AILevelDecrease);
 	}
 
 	if (!Packet.at(Packet::Type).empty())
-		PacketStack.push_back(Packet);
-
+		EventStack.push_back(Packet);
 	Debug::End();
 
 	Debug::Begin("ViewerChange");
-	if (Debug::Button("EventViewer"))
+	if (Debug::Button("SetTransition"))
 	{
-		// エフェクト
-		GameParticleManager::Instance()->SetGlassShards();
-		TaskManager::Instance()->CreateDelayedTask(60, [&]()
-		{
-			ChangeViewer(Viewer::State::EventLive, 0);
-		});
+		LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
+		ViewerContainer.at(Viewer::State::Ranking)->CreateViewerTex(&ViewerTexture);
+		transition->SetTransition(0, ViewerTexture);
 	}
-	else if (Debug::Button("RankingViewer"))
-	{
-		ChangeViewer(Viewer::State::Ranking, 0);
-		//background->RecoveryBGColor();
-		//Current = Viewer::State::Ranking;
-	}
+
 	Debug::End();
 
 #endif
@@ -256,12 +248,23 @@ void UDPServer::ReceivePacket(void)
 		String::Split(SplitedStr, Message, ',');
 
 		// パケットのヘッダーを確認
-		if (SplitedStr.at(0) == "これはLink専用の通信パケットです")
+		if (SplitedStr.at(Packet::Header) == "これはLink専用の通信パケットです")
 		{
-			//SplitedStr.erase(SplitedStr.begin());
+			int Type = stoi(SplitedStr.at(Packet::Type));
 
-			// スタックに表示予定のオブジェクトを追加
-			PacketStack.push_back(SplitedStr);
+			if (Type == Packet::InsertRank)
+			{
+				// スタックに表示予定のランクを追加
+				RankStack.push_back(SplitedStr);
+			}
+			else if (Type == Packet::EventLive || Type == Packet::LevelUp)
+			{
+				if (EventStack.empty())
+				{
+					// スタックに表示予定のイベントを追加
+					EventStack.push_back(SplitedStr);
+				}
+			}
 		}
 	}
 }
@@ -272,47 +275,56 @@ void UDPServer::ReceivePacket(void)
 void UDPServer::PacketProcess(void)
 {
 	// 処理待ちのパケットがあれば
-	if (!PacketStack.empty() && !InInsertRank)
+	if (InIdle && Current == Viewer::Ranking)
 	{
-		// 先にランキング追加の事件を処理
-		for (auto &Str : PacketStack)
+		if (!RankStack.empty())
 		{
-			int Type = stoi(Str.at(Packet::Type));
-			if (Type == Packet::InsertRank)
+			// 先にランキング追加の事件を処理
+			for (auto &Str : RankStack)
 			{
-				InInsertRank = true;
-				ViewerContainer.at(Viewer::Ranking)->ReceivePacket(Type, Str);
-			}
-			Str.clear();
-		}
-
-		// 後に他の事件を処理
-		if (!InInsertRank)
-		{
-			for (auto &Str : PacketStack)
-			{
-				if (Str.empty())
-					continue;
-
 				int Type = stoi(Str.at(Packet::Type));
-				if (Type == Packet::EventLive)
+				if (Type == Packet::InsertRank)
 				{
-					ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
-				}
-				else if (Type == Packet::LevelUp)
-				{
-					//ViewerContainer.at(Viewer::)->ReceivePacket(Type, Str);
+					InIdle = false;
+					ViewerContainer.at(Viewer::Ranking)->ReceivePacket(Type, Str);
 				}
 				Str.clear();
+				break;
+			}
+		}
+		else
+		{
+			if (!EventStack.empty())
+			{
+				for (auto &Str : EventStack)
+				{
+					int Type = stoi(Str.at(Packet::Type));
+					if (Type == Packet::EventLive)
+					{
+						GameParticleManager::Instance()->SetGlassShards();
+						TaskManager::Instance()->CreateDelayedTask(60, [=]()
+						{
+							ChangeViewer(Viewer::EventLive, 0);
+							ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
+						});
+						Str.clear();
+						EventStack.clear();
+						break;
+					}
+					else if (Type == Packet::LevelUp)
+					{
+						//ViewerContainer.at(Viewer::)->ReceivePacket(Type, Str);
+					}
+				}
 			}
 		}
 	}
 
 	// 空きパケットを削除
-	PacketStack.erase(std::remove_if(std::begin(PacketStack), std::end(PacketStack), [](vector<string> Packet)
+	RankStack.erase(std::remove_if(std::begin(RankStack), std::end(RankStack), [](vector<string> Packet)
 	{
 		return Packet.empty();
-	}), std::end(PacketStack));
+	}), std::end(RankStack));
 }
 
 //=============================================================================
@@ -325,5 +337,20 @@ void UDPServer::ChangeViewer(int NextViewer, int TransitionType)
 	ViewerContainer.at(Viewer::State::Ranking)->CreateViewerTex(&ViewerTexture);
 	transition->SetTransition(TransitionType, ViewerTexture);
 	background->SetBGTransition(NextViewer);
-	Current = NextViewer;
+
+	TaskManager::Instance()->CreateDelayedTask(60, [=]()
+	{
+		Current = NextViewer;
+	});
+}
+
+void UDPServer::RankingRecovery(void)
+{
+	background->SetBGTransition(Viewer::State::Ranking);
+
+	TaskManager::Instance()->CreateDelayedTask(60, [=]()
+	{
+		Current = Viewer::State::Ranking;
+		ViewerContainer.at(Viewer::State::Ranking)->RankingRecovery();
+	});
 }

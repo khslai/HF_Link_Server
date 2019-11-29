@@ -7,7 +7,6 @@
 #ifndef _TextureTest_H_
 #define _TextureTest_H_
 
-#include "Framework/SplitTextureDrawer.h"
 #include "Framework/TextureDrawer.h"
 
 //*****************************************************************************

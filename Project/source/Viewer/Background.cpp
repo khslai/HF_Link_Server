@@ -78,7 +78,6 @@ void Background::Update(void)
 	{
 		CountFrame++;
 		float Time = (float)CountFrame / 60;
-		//D3DXCOLOR Color = Easing::EaseValue(Time, PreColor, DestColor, EaseType::Linear);
 		float Alpha = Easing::EaseValue(Time, 0.0f, 1.0f, EaseType::Linear);
 		background.at(PrevBG)->SetAlpha(1.0f - Alpha);
 		background.at(CurrentBG)->SetAlpha(Alpha);

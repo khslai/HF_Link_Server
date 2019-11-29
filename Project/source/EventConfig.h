@@ -9,6 +9,7 @@
 
 namespace EventConfig
 {
+
 	enum EventType
 	{
 		LinkLevelUp,		// ˆê‚Â‚Ì’¬‚ÌƒŠƒ“ƒNƒŒƒxƒ‹ã¸

@@ -28,6 +28,7 @@ enum ViewerState
 	Idle,
 	Move,
 	Expand,
+	Recovery,
 };
 
 //*****************************************************************************
@@ -38,7 +39,7 @@ enum ViewerState
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-RankingViewer::RankingViewer() :
+RankingViewer::RankingViewer(std::function<void(bool)> setIdle) :
 	InsertTemp(nullptr)
 {
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
@@ -46,6 +47,8 @@ RankingViewer::RankingViewer() :
 	RankingTitle->SetPosition(D3DXVECTOR3(SCREEN_CENTER_X, 108.0f, 0.0f));
 
 	ExpandTexture = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 120.0f), false);
+
+	SetIdle = setIdle;
 }
 
 //=============================================================================
@@ -61,21 +64,13 @@ RankingViewer::~RankingViewer()
 }
 
 //=============================================================================
-// 入場処理
-//=============================================================================
-void RankingViewer::Start(void)
-{
-
-}
-
-//=============================================================================
 // 更新
 //=============================================================================
 bool RankingViewer::Update(void)
 {
 	const int MoveFrame = 30;
+	const int RecoveryFrame = 120;
 	const float MoveSpeed = RankInterval / MoveFrame;
-	InIdle = false;
 
 	if (State == ViewerState::Idle)
 	{
@@ -90,9 +85,8 @@ bool RankingViewer::Update(void)
 				RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
 				Num++;
 			}
-
 			// ランキングビューアは待機状態
-			InIdle = true;
+			SetIdle(true);
 		}
 		else
 		{
@@ -131,6 +125,33 @@ bool RankingViewer::Update(void)
 	else if (State == ViewerState::Expand)
 	{
 		ExpandTexture->Update();
+	}
+	else if (State == ViewerState::Recovery)
+	{
+		if (CountFrame < RecoveryFrame)
+		{
+			CountFrame++;
+			int Num = 0;
+
+			// ランキング移動
+			for (auto &RankVec : Ranking)
+			{
+				float Time = (float)CountFrame / (RecoveryFrame - Num * 15);
+				D3DXVECTOR3 StartPos = RankVec->GetStartPos();
+				D3DXVECTOR3 DestPos = DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f);
+				D3DXVECTOR3 Pos = Easing::EaseValue(Time, StartPos, DestPos, EaseType::OutQuart);
+				RankVec->SetPosition(Pos);
+				Num++;
+			}
+
+			RankingTitle->Update();
+
+			// 移動終了
+			if (CountFrame == RecoveryFrame)
+			{
+				State = ViewerState::Idle;
+			}
+		}
 	}
 
 #if _DEBUG
@@ -179,14 +200,6 @@ void RankingViewer::Draw(void)
 }
 
 //=============================================================================
-// 退場処理
-//=============================================================================
-void RankingViewer::Exit(void)
-{
-
-}
-
-//=============================================================================
 // パケットの内容を処理
 //=============================================================================
 void RankingViewer::CreateRankDrawer(string PlayerName, string AILevel)
@@ -205,7 +218,7 @@ void RankingViewer::CreateRankDrawer(string PlayerName, string AILevel)
 //=============================================================================
 // パケットの内容を処理
 //=============================================================================
-void RankingViewer::ReceivePacket(int PacketType, const std::vector<string>& SpliteStr)
+void RankingViewer::ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr)
 {
 	if (PacketType != Packet::InsertRank)
 		return;
@@ -267,6 +280,28 @@ void RankingViewer::CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr)
 
 	*TexturePtr = RenderTexture;
 	RenderTexture = nullptr;
+}
+
+//=============================================================================
+// ランキング復帰
+//=============================================================================
+void RankingViewer::RankingRecovery(void)
+{
+	int Num = 0;
+
+	// 先に画面外に設置
+	for (auto &RankVec : Ranking)
+	{
+		RankVec->SetPosition(DefaultPos + D3DXVECTOR3(-SCREEN_WIDTH, Num * RankInterval, 0.0f));
+		RankVec->SetStartPos(DefaultPos + D3DXVECTOR3(-SCREEN_WIDTH, Num * RankInterval, 0.0f));
+		Num++;
+	}
+
+	RankingTitle->SetAlpha(0.0f);
+	RankingTitle->Fade(60.0f, 1.0f);
+
+	State = ViewerState::Recovery;
+	CountFrame = 0;
 }
 
 //=============================================================================
@@ -345,7 +380,6 @@ void RankingViewer::RankingExpand()
 	{
 		// ランキングに追加
 		RankingInsert();
-		State = ViewerState::Idle;
 	});
 
 	// エフェクト
@@ -370,6 +404,8 @@ void RankingViewer::RankingInsert(void)
 	{
 		Ranking.pop_back();
 	}
+
+	State = ViewerState::Idle;
 }
 
 #if _DEBUG

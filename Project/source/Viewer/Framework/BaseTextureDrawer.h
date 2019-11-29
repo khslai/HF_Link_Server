@@ -38,12 +38,6 @@ enum CloseType
 	FromUpDown,
 };
 
-enum FadeType
-{
-	In,
-	Out,
-};
-
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
 //*****************************************************************************
@@ -51,18 +45,9 @@ class BaseTextureDrawer
 {
 protected:
 	D3DXVECTOR3	Position;
-	D3DXVECTOR2	TextureSize;
+	D3DXVECTOR2	Size;
 	VERTEX_2D Vertex[NUM_VERTEX];
 	LPDIRECT3DTEXTURE9 Texture = nullptr;
-	EaseType easeType;
-	ExpandType expandType;
-	CloseType closeType;
-	int CountFrame = 0;
-	bool InMove = false;
-	bool InScale = false;
-	bool InExpand = false;
-	bool InClose = false;
-	bool InFade = false;
 	bool Visible = true;
 
 public:
