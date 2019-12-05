@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Scene\GameState\GameIdle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Scene\GameState\GameInit.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="source\Scene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -365,12 +359,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Scene\GameState\GameIdle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Scene\GameState\GameInit.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="source\Scene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>

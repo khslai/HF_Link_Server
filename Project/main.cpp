@@ -43,9 +43,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	UNREFERENCED_PARAMETER(lpCmdLine);		// 無くても良いけど、警告が出る（未使用宣言）
 
 	// メモリリーク検査用
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	// 特定のcppを追跡用
-	//_CrtSetBreakAlloc(2269);
+	//_CrtSetBreakAlloc(82);
 
 	DWORD dwExecLastTime;
 	DWORD dwCurrentTime;
@@ -99,7 +99,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		return -1;
 	}
 #else
-	if (FAILED(Init(hInstance, hWnd, false)))
+	if (FAILED(Init(hInstance, hWnd, true)))
 	{
 		return -1;
 	}

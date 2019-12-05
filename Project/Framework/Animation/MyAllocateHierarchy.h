@@ -85,9 +85,6 @@ public:
 		LPD3DXMESHCONTAINER pMeshContainerToFree);
 
 protected:
-	//ï∂éöóÒÉRÉsÅ[
-	LPSTR CopyStr(LPCSTR name);
-
 	HRESULT AllocateName(LPCSTR name, LPSTR* newName);
 	HRESULT GenerateSkinnedMesh(LPDIRECT3DDEVICE9 pDevice, D3DXMESHCONTAINER_DERIVED *meshContainer);
 };

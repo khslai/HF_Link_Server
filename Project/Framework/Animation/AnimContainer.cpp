@@ -307,7 +307,6 @@ HRESULT AnimContainer::LoadAnimation(LPCSTR setName, int setNo)
 ***************************************/
 AnimContainer::~AnimContainer()
 {
-	return;
 	SAFE_DELETE(status);
 	SAFE_RELEASE(animController);
 

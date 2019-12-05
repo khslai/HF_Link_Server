@@ -37,13 +37,13 @@ void GameMain::Update()
 	BaseGame::Update();
 
 #if _DEBUG
-	Debug::Begin("Scene");
+	//Debug::Begin("Scene");
 
-	if (Debug::Button("Game"))
-		sceneManager->ChangeScene(GameConfig::Game);
-	else if (Debug::Button("TextureTest"))
-		sceneManager->ChangeScene(GameConfig::TextureTest);
+	//if (Debug::Button("Game"))
+	//	sceneManager->ChangeScene(GameConfig::Game);
+	//else if (Debug::Button("TextureTest"))
+	//	sceneManager->ChangeScene(GameConfig::TextureTest);
 
-	Debug::End();
+	//Debug::End();
 #endif
 }

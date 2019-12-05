@@ -236,8 +236,6 @@
     <ClCompile Include="source\Effect\Game\GlassShards.cpp" />
     <ClCompile Include="source\GameMain.cpp" />
     <ClCompile Include="source\Scene\GameScene.cpp" />
-    <ClCompile Include="source\Scene\GameState\GameIdle.cpp" />
-    <ClCompile Include="source\Scene\GameState\GameInit.cpp" />
     <ClCompile Include="source\Scene\TextureTestScene.cpp" />
     <ClCompile Include="source\Transition\Transition.cpp" />
     <ClCompile Include="source\Viewer\Background.cpp" />
@@ -372,8 +370,6 @@
     <ClInclude Include="source\GameConfig.h" />
     <ClInclude Include="source\GameMain.h" />
     <ClInclude Include="source\Scene\GameScene.h" />
-    <ClInclude Include="source\Scene\GameState\GameIdle.h" />
-    <ClInclude Include="source\Scene\GameState\GameInit.h" />
     <ClInclude Include="source\Scene\TextureTestScene.h" />
     <ClInclude Include="source\Transition\Transition.h" />
     <ClInclude Include="source\Viewer\Background.h" />

@@ -8,8 +8,6 @@
 #include "GameScene.h"
 #include "../GameConfig.h"
 #include "../Camera/FieldCamera.h"
-#include "GameState/GameInit.h"
-#include "GameState/GameIdle.h"
 #include "../Effect/GameParticleManager.h"
 #include "../Actor/RobotActor.h"
 
@@ -31,32 +29,25 @@ staticメンバ
 ***************************************/
 void GameScene::Init()
 {
-	// メッシュ、テクスチャを読み込む
-	LoadResource();
-
-	//カメラ作成
+	// カメラ作成
 	fieldCamera = new FieldCamera();
 	Camera::SetMainCamera(fieldCamera);
+	// カメラの追従目標にカーソルを設定してモード切替
+	fieldCamera->SetTargetPos(Vector3::Zero);
+	fieldCamera->ChangeMode(FieldCamera::Mode::FrontSide);
 
-	//パーティクル初期化
+	// パーティクル初期化
 	ParticleManager = GameParticleManager::Instance();
 	ParticleManager->Init();
 	//ParticleManager->SetBlueDebris(D3DXVECTOR3(0.0f, 10.0f, 30.0f));
 
+	// ロボットの初期化
 	Robot = new RobotActor();
 
 	// サーバーの設定
 	Server = new UDPServer();
 	// サーバー受信スレッド設定
 	UDPServer::Thread = (HANDLE)_beginthreadex(NULL, 0, UDPServer::ThreadEntryPoint, Server, 0, NULL);
-
-	//ステートマシン作成
-	fsm.resize(State::Max, NULL);
-	fsm[State::Initialize] = new GameInit();
-	fsm[State::Idle] = new GameIdle();
-
-	//ステート初期化
-	ChangeState(State::Initialize);
 }
 
 /**************************************
@@ -64,18 +55,12 @@ void GameScene::Init()
 ***************************************/
 void GameScene::Uninit()
 {
-	//カメラ削除
 	SAFE_DELETE(fieldCamera);
-
-	//パーティクル削除
-	ParticleManager->Uninit();
-
-	//ステートマシン削除
-	Utility::DeleteContainer(fsm);
-
-	// サーバー削除
 	SAFE_DELETE(Server);
 	SAFE_DELETE(Robot);
+
+	// パーティクル削除
+	ParticleManager->Uninit();
 }
 
 /**************************************
@@ -83,24 +68,24 @@ void GameScene::Uninit()
 ***************************************/
 void GameScene::Update()
 {
-	//カメラ更新
+	// カメラ更新
 	fieldCamera->Update();
 
-	//カメラの情報をエフェクトに渡す
+	// カメラの情報をエフェクトに渡す
 	SpriteEffect::SetView(fieldCamera->GetViewMtx());
 	SpriteEffect::SetProjection(fieldCamera->GetProjectionMtx());
 
+	// サーバー更新
 	Server->Update();
 
+	// ロボット更新
 	Robot->Update();
 
+	// パーティクル更新
 	ParticleManager->Update();
 
 	// マルチスレッドの実行を待つ
 	DWORD ThreadResult = WaitForSingleObject(UDPServer::Thread, 1);
-
-	// ステートを更新
-	State next = fsm[currentState]->OnUpdate(*this);
 }
 
 /**************************************
@@ -125,26 +110,4 @@ void GameScene::Draw()
 
 	// パーティクル(2D)
 	ParticleManager->Draw2DParticle();
-}
-
-/**************************************
-ステート遷移処理
-***************************************/
-void GameScene::ChangeState(State next)
-{
-	prevState = currentState;
-
-	currentState = next;
-
-	if (fsm[currentState] != NULL)
-	{
-		fsm[currentState]->OnStart(*this);
-	}
-}
-
-/**************************************
-// メッシュ、テクスチャを読み込む
-***************************************/
-void GameScene::LoadResource(void)
-{
 }

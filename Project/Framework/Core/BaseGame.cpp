@@ -33,7 +33,9 @@ BaseGame::BaseGame(HINSTANCE hInstance, HWND hWnd)
 	//各種初期化
 	Input::Init(hInstance, hWnd);
 	Light::Init();
+#if _DEBUG
 	Debug::Init(hWnd, pDevice);
+#endif
 }
 
 /**************************************
@@ -51,7 +53,9 @@ BaseGame::~BaseGame()
 	SAFE_DELETE(sceneManager);
 	SAFE_DELETE(Tween::mInstance);
 
+#if _DEBUG
 	Debug::Uninit();
+#endif
 	Input::Uninit();
 }
 
@@ -60,10 +64,10 @@ BaseGame::~BaseGame()
 ***************************************/
 void BaseGame::Update()
 {
+#if _DEBUG
 	Debug::Update();
 	Input::Update();
 
-#if _DEBUG
 	static bool pause = false;
 	if (Keyboard::GetTrigger(DIK_P))
 		pause = !pause;
@@ -79,6 +83,7 @@ void BaseGame::Update()
 		//TransitionController::Instance()->Update();
 	}
 #else
+	Input::Update();
 	sceneManager->Update();
 	Tween::mInstance->Update();
 	TaskManager::Instance()->Update();
@@ -123,9 +128,11 @@ void BaseGame::Draw()
 	pDevice->SetFVF(FVF_VERTEX_2D);
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, NUM_POLYGON);
 
+#if _DEBUG
 	//デバッグウィンドウ描画
 	ProfilerCPU::Instance()->Draw();
 	Debug::Draw();
+#endif
 }
 
 /**************************************

@@ -36,33 +36,10 @@ public:
 	void Update();
 	void Draw();
 
-	//ステートを表す列挙子
-	enum State
-	{
-		Initialize,
-		Idle,
-		Max
-	};
-
-	//ステート遷移処理
-	void ChangeState(State next);
-
 private:
-	using SceneState = BaseState<GameScene, State>;
-
-	//シーンステートマシン
-	std::vector<SceneState*> fsm;
-	State currentState, prevState;
 	FieldCamera* fieldCamera;					//フィールドカメラ
 	GameParticleManager *ParticleManager;		// パーティクルマネージャー
 	UDPServer *Server;							// サーバー
 	RobotActor *Robot;
-
-	//各ステートクラス
-	class GameInit;
-	class GameIdle;
-
-	// メッシュ、テクスチャを読み込む
-	void LoadResource(void);
 };
 #endif

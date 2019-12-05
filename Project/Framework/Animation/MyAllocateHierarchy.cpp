@@ -242,13 +242,19 @@ HRESULT MyAllocateHierarchy::DestroyFrame(THIS_
 	if (!pFrameToFree)
 		return D3D_OK;
 
-	SAFE_DELETE_ARRAY(pFrameToFree->Name);
+	//SAFE_DELETE_ARRAY(pFrameToFree->Name);
+	SAFE_DELETE(pFrameToFree->Name);
 	DestroyFrame(pFrameToFree->pFrameSibling);
 	DestroyFrame(pFrameToFree->pFrameFirstChild);
-	DestroyMeshContainer(pFrameToFree->pMeshContainer);
-	pFrameToFree->pMeshContainer = NULL;
+	SAFE_DELETE(pFrameToFree->pMeshContainer);
 
-	SAFE_DELETE(pFrameToFree);
+	// 不明な原因で、メモリを初期化する時に、使う関数は_aligned_mallocなので
+	// リリースする時に_aligned_freeを使う
+	// MyAllocateHierarchy.hのオーバーロードとは関係ないと思う
+	// オーバーロードをコメントをして、freeを使えばエラーウィンドウが出る
+	_aligned_free(pFrameToFree);
+	pFrameToFree = nullptr;
+	//SAFE_DELETE(pFrameToFree);
 
 	return D3D_OK;
 }
@@ -265,14 +271,18 @@ HRESULT MyAllocateHierarchy::DestroyMeshContainer(THIS_
 	UINT iMaterial;
 	D3DXMESHCONTAINER_DERIVED *meshContainer = (D3DXMESHCONTAINER_DERIVED*)pMeshContainerToFree;
 
-	SAFE_DELETE_ARRAY(meshContainer->Name);
-	SAFE_DELETE_ARRAY(meshContainer->pAdjacency);
+	SAFE_DELETE(meshContainer->Name);
+	//SAFE_DELETE_ARRAY(meshContainer->Name);
+	SAFE_DELETE(meshContainer->pAdjacency);
+	//SAFE_DELETE_ARRAY(meshContainer->pAdjacency);
 
 	for (unsigned i = 0; i < meshContainer->NumMaterials; i++)
 	{
-		SAFE_DELETE_ARRAY(meshContainer->pMaterials[i].pTextureFilename);
+		SAFE_DELETE(meshContainer->pMaterials[i].pTextureFilename);
+		//SAFE_DELETE_ARRAY(meshContainer->pMaterials[i].pTextureFilename);
 	}
-	SAFE_DELETE_ARRAY(meshContainer->pMaterials);
+	SAFE_DELETE(meshContainer->pMaterials);
+	//SAFE_DELETE_ARRAY(meshContainer->pMaterials);
 
 	if (meshContainer->textures != NULL)
 	{
@@ -281,24 +291,29 @@ HRESULT MyAllocateHierarchy::DestroyMeshContainer(THIS_
 			SAFE_RELEASE(meshContainer->textures[iMaterial]);
 		}
 	}
-	SAFE_DELETE_ARRAY(meshContainer->textures);
+	//SAFE_DELETE_ARRAY(meshContainer->textures);
+	SAFE_DELETE(meshContainer->textures);
 
 	if (meshContainer->pEffects != NULL)
 	{
 		for (unsigned iEffects = 0; iEffects < meshContainer->pEffects->NumDefaults; iEffects++)
 		{
-			delete[] meshContainer->pEffects->pDefaults[iEffects].pParamName;
-			delete[] meshContainer->pEffects->pDefaults[iEffects].pValue;
+			SAFE_DELETE(meshContainer->pEffects->pDefaults[iEffects].pParamName);
+			SAFE_DELETE(meshContainer->pEffects->pDefaults[iEffects].pValue);
+			//delete[] meshContainer->pEffects->pDefaults[iEffects].pParamName;
+			//delete[] meshContainer->pEffects->pDefaults[iEffects].pValue;
 		}
 	}
-	SAFE_DELETE_ARRAY(meshContainer->pEffects);
-	SAFE_DELETE_ARRAY(meshContainer->pEffects);
+	SAFE_DELETE(meshContainer->pEffects);
+	//SAFE_DELETE_ARRAY(meshContainer->pEffects);
 
 	SAFE_RELEASE(meshContainer->pSkinInfo);
 	SAFE_RELEASE(meshContainer->boneCombinationBuf);
 	SAFE_DELETE_ARRAY(meshContainer->boneOffsetMatrices);
 	SAFE_DELETE_ARRAY(meshContainer->boneMatrices);
 	SAFE_RELEASE(meshContainer->MeshData.pMesh);
+	SAFE_RELEASE(meshContainer->MeshData.pPMesh);
+	SAFE_RELEASE(meshContainer->MeshData.pPatchMesh);
 	SAFE_RELEASE(meshContainer->originMesh);
 
 	if (meshContainer->pNextMeshContainer != NULL)
@@ -306,7 +321,8 @@ HRESULT MyAllocateHierarchy::DestroyMeshContainer(THIS_
 		DestroyMeshContainer(meshContainer->pNextMeshContainer);
 	}
 
-	SAFE_DELETE(meshContainer);
+	// DestroyFrameの中に実行するように変更
+	//SAFE_DELETE(meshContainer);
 
 	return D3D_OK;
 }

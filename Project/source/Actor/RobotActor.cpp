@@ -92,7 +92,7 @@ void RobotActor::Update()
 	anim->Update();
 
 #if _DEBUG
-	Debug();
+	//Debug();
 #endif
 }
 
