@@ -23,6 +23,7 @@ class RankingViewer : public BaseViewer
 {
 private:
 	int CountFrame;
+	int ChangeAnimInterval;
 	int InsertNum;
 	int State;								// èÛë‘
 	TextureDrawer *RankingTitle;			// É^ÉCÉgÉã
@@ -34,19 +35,20 @@ private:
 
 	void SortRanking(RankDrawer* Rank);
 	void RankingMoveStart(int Num);
-	void RankingExpand();
+	void RankingExpand(void);
 	void RankingInsert(void);
+	void SetAnimation(int state);
 
 public:
 	RankingViewer(std::function<void(bool)> setIdle);
 	~RankingViewer();
-	bool Update(void) override;
+	void Update(void) override;
 	void Draw(void) override;
-	void CreateRankDrawer(string PlayerName, string AILevel);
 	void ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr) override;
 	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr);
 	void RankingRecovery(void);
 	string GetLastScore(void);
+
 #if _DEBUG
 	void ClearRanking(void);
 #endif

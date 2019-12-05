@@ -63,6 +63,7 @@ void BaseGame::Update()
 	Debug::Update();
 	Input::Update();
 
+#if _DEBUG
 	static bool pause = false;
 	if (Keyboard::GetTrigger(DIK_P))
 		pause = !pause;
@@ -77,6 +78,12 @@ void BaseGame::Update()
 		TaskManager::Instance()->Update();
 		//TransitionController::Instance()->Update();
 	}
+#else
+	sceneManager->Update();
+	Tween::mInstance->Update();
+	TaskManager::Instance()->Update();
+	//TransitionController::Instance()->Update();
+#endif
 }
 
 /**************************************

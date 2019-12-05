@@ -19,9 +19,9 @@
 前方宣言
 ***************************************/
 class FieldCamera;
-class PlaceActor;
 class UDPServer;
 class GameParticleManager;
+class RobotActor;
 
 
 /**************************************
@@ -52,11 +52,11 @@ private:
 
 	//シーンステートマシン
 	std::vector<SceneState*> fsm;
-	std::vector<PlaceActor*> PlaceActorContainer;
 	State currentState, prevState;
 	FieldCamera* fieldCamera;					//フィールドカメラ
 	GameParticleManager *ParticleManager;		// パーティクルマネージャー
 	UDPServer *Server;							// サーバー
+	RobotActor *Robot;
 
 	//各ステートクラス
 	class GameInit;

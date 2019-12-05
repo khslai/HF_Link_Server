@@ -16,7 +16,8 @@ using namespace std;
 /**************************************
 コンストラクタ
 ***************************************/
-AnimationManager::AnimationManager()
+AnimationManager::AnimationManager() :
+	currentAnimID(0)
 {
 	container = new AnimContainer();
 }
@@ -104,8 +105,8 @@ HRESULT AnimationManager::LoadAnimation(LPCSTR setName, int setNo, float shiftTi
 ***************************************/
 void AnimationManager::SetPlaySpeed(UINT animID, float speed)
 {
-	assert(animID < 0);
-	assert(animID >= playSpeedList.size());
+	assert(animID >= 0);
+	assert(animID < playSpeedList.size());
 
 	playSpeedList[animID] = speed;
 }
@@ -115,8 +116,8 @@ void AnimationManager::SetPlaySpeed(UINT animID, float speed)
 ***************************************/
 void AnimationManager::SetDeltaTime(UINT animID, float delta)
 {
-	assert(animID < 0);
-	assert(animID >= deltaTimeList.size());
+	assert(animID >= 0);
+	assert(animID < deltaTimeList.size());
 
 	deltaTimeList[animID] = delta;
 }

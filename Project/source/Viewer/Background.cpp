@@ -54,7 +54,7 @@ Background::Background() :
 
 	for (int i = 0; i < GroundNum; i++)
 	{
-		Ground.push_back(new PolygonDrawer("Ground", D3DXVECTOR3(0.0f, 0.0f, 150.0f), D3DXVECTOR3(0.0f, 0.0f, -10.0f), i));
+		Ground.push_back(new PolygonDrawer("Ground", D3DXVECTOR3(0.0f, -5.0f, 150.0f), D3DXVECTOR3(0.0f, -5.0f, -10.0f), i));
 	}
 }
 

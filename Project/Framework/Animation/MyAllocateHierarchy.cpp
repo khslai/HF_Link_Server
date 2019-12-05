@@ -5,6 +5,7 @@
 //
 //=====================================
 #include "MyAllocateHierarchy.h"
+#include "../Resource/ResourceManager.h"
 
 /**************************************
 ƒ}ƒNƒ’è‹`
@@ -172,7 +173,7 @@ HRESULT MyAllocateHierarchy::CreateMeshContainer(THIS_
 				ZeroMemory(textureName, sizeof(textureName));
 				sprintf_s(textureName, "data/MODEL/%s", meshContainer->pMaterials[iMaterial].pTextureFilename);
 
-				if (FAILED(D3DXCreateTextureFromFile(pDevice, textureName, &meshContainer->textures[iMaterial])))
+				if (!ResourceManager::Instance()->GetTexture(textureName, meshContainer->textures[iMaterial]))
 				{
 					meshContainer->textures[iMaterial] = NULL;
 				}
@@ -247,8 +248,7 @@ HRESULT MyAllocateHierarchy::DestroyFrame(THIS_
 	DestroyMeshContainer(pFrameToFree->pMeshContainer);
 	pFrameToFree->pMeshContainer = NULL;
 
-	delete pFrameToFree;
-	pFrameToFree = NULL;
+	SAFE_DELETE(pFrameToFree);
 
 	return D3D_OK;
 }

@@ -230,6 +230,7 @@
     <ClCompile Include="source\Camera\State\FieldCameraFront.cpp" />
     <ClCompile Include="source\Effect\GameParticleManager.cpp" />
     <ClCompile Include="source\Effect\Game\BlueDebris.cpp" />
+    <ClCompile Include="source\Effect\Game\ColorfulDebris.cpp" />
     <ClCompile Include="source\Effect\Game\ExpandEffect.cpp" />
     <ClCompile Include="source\Effect\Game\GlassBroken.cpp" />
     <ClCompile Include="source\Effect\Game\GlassShards.cpp" />
@@ -245,6 +246,7 @@
     <ClCompile Include="source\Viewer\Framework\PolygonDrawer.cpp" />
     <ClCompile Include="source\Viewer\Framework\RankDrawer.cpp" />
     <ClCompile Include="source\Viewer\Framework\TextureDrawer.cpp" />
+    <ClCompile Include="source\Viewer\LevelUpViewer.cpp" />
     <ClCompile Include="source\Viewer\RankingViewer.cpp" />
     <ClCompile Include="source\Viewer\TextureTest.cpp" />
   </ItemGroup>
@@ -362,6 +364,7 @@
     <ClInclude Include="source\Camera\State\FieldCameraFront.h" />
     <ClInclude Include="source\Effect\GameParticleManager.h" />
     <ClInclude Include="source\Effect\Game\BlueDebris.h" />
+    <ClInclude Include="source\Effect\Game\ColorfulDebris.h" />
     <ClInclude Include="source\Effect\Game\ExpandEffect.h" />
     <ClInclude Include="source\Effect\Game\GlassBroken.h" />
     <ClInclude Include="source\Effect\Game\GlassShards.h" />
@@ -380,6 +383,7 @@
     <ClInclude Include="source\Viewer\Framework\PolygonDrawer.h" />
     <ClInclude Include="source\Viewer\Framework\RankDrawer.h" />
     <ClInclude Include="source\Viewer\Framework\TextureDrawer.h" />
+    <ClInclude Include="source\Viewer\LevelUpViewer.h" />
     <ClInclude Include="source\Viewer\RankingViewer.h" />
     <ClInclude Include="source\Viewer\TextureTest.h" />
     <ClInclude Include="source\Viewer\ViewerConfig.h" />

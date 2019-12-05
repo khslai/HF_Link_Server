@@ -12,6 +12,7 @@
 #include "Game/BlueDebris.h"
 #include "Game/GlassShards.h"
 #include "Game/GlassBroken.h"
+#include "Game/ColorfulDebris.h"
 
 /**************************************
 staticメンバ
@@ -30,6 +31,7 @@ void GameParticleManager::Init()
 	controllers[GameParticle::BlueDebris] = new Effect::Game::BlueDebrisController();
 	controllers[GameParticle::GlassShards] = new Effect::Game::GlassShardsController();
 	controllers[GameParticle::GlassBroken] = new Effect::Game::GlassBrokenController();
+	controllers[GameParticle::ColorfulDebris] = new Effect::Game::ColorfulDebrisController();
 }
 
 /**************************************
@@ -37,14 +39,14 @@ void GameParticleManager::Init()
 ***************************************/
 void GameParticleManager::Draw3DParticle()
 {
+#if _DEBUG
 	Debug::Begin("Effect Test");
-	if (Debug::Button("GlassShards"))
-		SetGlassShards(D3DXVECTOR3(0.0f, 10.0f, 20.0f));
-	else if (Debug::Button("ScreenBroken"))
+	if (Debug::Button("ColorfulDebris"))
 	{
-		SetGlassShards(D3DXVECTOR3(0.0f, 10.0f, 25.0f));
+		SetColorfulDebris(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f));
 	}
 	Debug::End();
+#endif
 
 	SceneParticleManager::Draw3DParticle();
 }
@@ -76,9 +78,17 @@ void GameParticleManager::SetBlueDebris(D3DXVECTOR3 Pos, std::function<void(void
 /**************************************
 ガラス破片エフェクトセット処理
 ***************************************/
-void GameParticleManager::SetGlassShards(D3DXVECTOR3 Pos, std::function<void(void)> callback)
+void GameParticleManager::SetGlassShards(void)
 {
 	controllers[GameParticle::GlassShards]->SetEmitter(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), nullptr);
 	controllers[GameParticle::GlassBroken]->SetEmitter(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), nullptr);
+}
+
+/**************************************
+カラー粒子エフェクトセット処理
+***************************************/
+void GameParticleManager::SetColorfulDebris(D3DXVECTOR3 Pos, std::function<void(void)> callback)
+{
+	controllers[GameParticle::ColorfulDebris]->SetEmitter(Pos, nullptr);
 }
 

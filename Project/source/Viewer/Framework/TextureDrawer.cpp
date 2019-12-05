@@ -189,11 +189,6 @@ void TextureDrawer::SetVertex()
 //=============================================================================
 void TextureDrawer::SetTexture(void)
 {
-	//Vertex[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	//Vertex[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	//Vertex[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	//Vertex[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
 	Vertex[0].tex = D3DXVECTOR2(Index.x * UnitUV.x, Index.y * UnitUV.y);
 	Vertex[1].tex = D3DXVECTOR2((Index.x + 1) * UnitUV.x, Index.y * UnitUV.y);
 	Vertex[2].tex = D3DXVECTOR2(Index.x * UnitUV.x, (Index.y + 1) * UnitUV.y);

@@ -8,7 +8,6 @@
 #include "RankDrawer.h"
 #include "TextureDrawer.h"
 
-#include "../../../Framework/Renderer2D/TextViewer.h"
 #include "../../../Framework/String/String.h"
 #include "../../../Framework/Tool/DebugWindow.h"
 #include "../../../Framework/Math/Easing.h"
@@ -181,6 +180,7 @@ void RankDrawer::SetDrawPosition(void)
 void RankDrawer::SplitAILevel(void)
 {
 	string StrTemp = AILevelStr;
+	bool ZeroScore = true;
 
 	for (int i = 0; i < DigitalMax; i++)
 	{
@@ -189,8 +189,12 @@ void RankDrawer::SplitAILevel(void)
 			// •¶Žš—ñ‚ÌÅ‰1•¶Žš‚ðŽæ“¾
 			char Num = StrTemp.front();
 
-			// intŒ^‚É•ÏŠ·A•Û‘¶
-			SplitedLevel.push_back(Num - '0');
+			if (Num != '0' || !ZeroScore)
+			{
+				ZeroScore = false;
+				// intŒ^‚É•ÏŠ·A•Û‘¶
+				SplitedLevel.push_back(Num - '0');
+			}
 
 			// Å‰‚Ì”Žšíœ
 			StrTemp.erase(StrTemp.begin());
@@ -199,6 +203,11 @@ void RankDrawer::SplitAILevel(void)
 		{
 			break;
 		}
+	}
+
+	if (SplitedLevel.empty())
+	{
+		SplitedLevel.push_back(0);
 	}
 }
 

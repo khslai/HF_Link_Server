@@ -11,6 +11,7 @@
 #include <vector>
 #include <functional>
 #include "BaseViewer.h"
+#include "../Actor/RobotActor.h"
 
 using namespace std;
 
@@ -31,6 +32,7 @@ class EventLiveViewer : public BaseViewer
 private:
 	int State;								// èÛë‘
 	int CountFrame;
+	RobotActor::AnimState AnimID;
 	bool ActionFlag;
 	int TelopBGIndex;
 	int MessageIndex;
@@ -42,7 +44,7 @@ public:
 
 	EventLiveViewer(std::function<void(void)> recovery);
 	~EventLiveViewer();
-	bool Update(void) override;
+	void Update(void) override;
 	void Draw(void) override;
 	void SetState(int State) { this->State = State; };
 	void SetActionFlag(bool Flag) { this->ActionFlag = Flag; };

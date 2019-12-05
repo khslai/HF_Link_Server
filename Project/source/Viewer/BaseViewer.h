@@ -18,13 +18,12 @@ class BaseViewer
 {
 protected:
 	bool Active = false;
-	bool InIdle = true;
 
 public:
 	BaseViewer() {};
 	virtual ~BaseViewer() {};
 
-	virtual bool Update() = 0;
+	virtual void Update() = 0;
 	virtual void Draw() = 0;
 	virtual void ReceivePacket(int PacketType, const std::vector<std::string>& SpliteStr) = 0;
 	//virtual void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr) {};

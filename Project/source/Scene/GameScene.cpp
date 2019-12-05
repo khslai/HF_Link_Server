@@ -10,9 +10,9 @@
 #include "../Camera/FieldCamera.h"
 #include "GameState/GameInit.h"
 #include "GameState/GameIdle.h"
-#include "../Actor/PlaceActor.h"
-#include "../Actor/CityActor.h"
 #include "../Effect/GameParticleManager.h"
+#include "../Actor/RobotActor.h"
+
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Tool/ProfilerCPU.h"
 #include "../../Framework/Core/SceneManager.h"
@@ -38,13 +38,12 @@ void GameScene::Init()
 	fieldCamera = new FieldCamera();
 	Camera::SetMainCamera(fieldCamera);
 
-	//各インスタンス作成
-	PlaceActorContainer.push_back(new CityActor(Vector3::Zero));
-
 	//パーティクル初期化
 	ParticleManager = GameParticleManager::Instance();
 	ParticleManager->Init();
 	//ParticleManager->SetBlueDebris(D3DXVECTOR3(0.0f, 10.0f, 30.0f));
+
+	Robot = new RobotActor();
 
 	// サーバーの設定
 	Server = new UDPServer();
@@ -71,14 +70,12 @@ void GameScene::Uninit()
 	//パーティクル削除
 	ParticleManager->Uninit();
 
-	//アクターコンテナ削除
-	Utility::DeleteContainer(PlaceActorContainer);
-
 	//ステートマシン削除
 	Utility::DeleteContainer(fsm);
 
 	// サーバー削除
 	SAFE_DELETE(Server);
+	SAFE_DELETE(Robot);
 }
 
 /**************************************
@@ -93,12 +90,9 @@ void GameScene::Update()
 	SpriteEffect::SetView(fieldCamera->GetViewMtx());
 	SpriteEffect::SetProjection(fieldCamera->GetProjectionMtx());
 
-	//for (auto &Actor : PlaceActorContainer)
-	//{
-	//	Actor->Update();
-	//}
-
 	Server->Update();
+
+	Robot->Update();
 
 	ParticleManager->Update();
 
@@ -117,13 +111,11 @@ void GameScene::Draw()
 	//カメラセット
 	fieldCamera->Set();
 
-	//for (auto &Actor : PlaceActorContainer)
-	//{
-	//	Actor->Draw();
-	//}
-
 	// 背景
 	Server->DrawBackground();
+
+	// ロボット
+	Robot->Draw();
 
 	// パーティクル(3D)
 	ParticleManager->Draw3DParticle();
@@ -155,6 +147,4 @@ void GameScene::ChangeState(State next)
 ***************************************/
 void GameScene::LoadResource(void)
 {
-	//ResourceManager::Instance()->LoadMesh("UFO", "data/MODEL/UFO/UFO.x");
-	ResourceManager::Instance()->LoadMesh("Town-City", "data/MODEL/PlaceActor/Town.x");
 }

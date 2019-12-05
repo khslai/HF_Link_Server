@@ -12,7 +12,6 @@
 #include "../../../Framework/Transition/TransitionController.h"
 #include "../../../Framework/Camera/CameraTranslationPlugin.h"
 #include "../../../Framework/Camera/CameraShakePlugin.h"
-#include "../../../Framework/PostEffect/BloomController.h"
 #include "../../../Framework/Core/PlayerPrefs.h"
 
 #include "../../Camera/FieldCamera.h"

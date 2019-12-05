@@ -60,6 +60,8 @@ public:
 	void SetSize(D3DXVECTOR2 Size);
 	void SetAlpha(float alpha);
 	void SetColor(D3DXCOLOR color);
+	void SetVisible(bool Flag) { this->Visible = Flag; };
+	D3DXVECTOR3 GetPosition(void) { return this->Position; };
 };
 
 #endif

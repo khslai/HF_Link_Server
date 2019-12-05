@@ -10,6 +10,7 @@
 #include "Framework/RankDrawer.h"
 #include "Framework/TextureDrawer.h"
 #include "../Effect/GameParticleManager.h"
+#include "../Actor/RobotActor.h"
 
 #include "../../Framework/Resource/ResourceManager.h"
 #include "../../Framework/String/String.h"
@@ -40,7 +41,8 @@ enum ViewerState
 // コンストラクタ
 //=============================================================================
 RankingViewer::RankingViewer(std::function<void(bool)> setIdle) :
-	InsertTemp(nullptr)
+	InsertTemp(nullptr),
+	ChangeAnimInterval(Math::RandomRange(600, 900))
 {
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
 	RankingTitle->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
@@ -66,7 +68,7 @@ RankingViewer::~RankingViewer()
 //=============================================================================
 // 更新
 //=============================================================================
-bool RankingViewer::Update(void)
+void RankingViewer::Update(void)
 {
 	const int MoveFrame = 30;
 	const int RecoveryFrame = 120;
@@ -77,6 +79,8 @@ bool RankingViewer::Update(void)
 		// 追加待ちのオブジェクトがない
 		if (InsertStack.empty())
 		{
+			CountFrame++;
+
 			// 順番によって、表示座標を設定
 			int Num = 0;
 			for (auto &RankVec : Ranking)
@@ -85,6 +89,12 @@ bool RankingViewer::Update(void)
 				RankVec->SetPosition(DefaultPos + D3DXVECTOR3(0.0f, Num * RankInterval, 0.0f));
 				Num++;
 			}
+
+			if (CountFrame % ChangeAnimInterval == 0)
+			{
+				SetAnimation(State);
+			}
+
 			// ランキングビューアは待機状態
 			SetIdle(true);
 		}
@@ -150,32 +160,10 @@ bool RankingViewer::Update(void)
 			if (CountFrame == RecoveryFrame)
 			{
 				State = ViewerState::Idle;
+				CountFrame = 0;
 			}
 		}
 	}
-
-#if _DEBUG
-	Debug::Begin("Ranking Test");
-	if (Debug::Button("Clear"))
-		ClearRanking();
-	else if (Debug::Button("123"))
-		CreateRankDrawer("112233", "123");
-	else if (Debug::Button("123455"))
-		CreateRankDrawer("001234", "123455");
-	else if (Debug::Button("123456"))
-		CreateRankDrawer("000102", "123456");
-	else if (Debug::Button("123457"))
-		CreateRankDrawer("030405", "123457");
-	else if (Debug::Button("123456789"))
-		CreateRankDrawer("060708", "123456789");
-	else if (Debug::Button("123456789123"))
-		CreateRankDrawer("091011", "123456789123");
-	else if (Debug::Button("123456789123456"))
-		CreateRankDrawer("333435", "123456789123456");
-	Debug::End();
-#endif
-
-	return InIdle;
 }
 
 //=============================================================================
@@ -196,22 +184,6 @@ void RankingViewer::Draw(void)
 	for (auto & Rank : Ranking)
 	{
 		Rank->Draw();
-	}
-}
-
-//=============================================================================
-// パケットの内容を処理
-//=============================================================================
-void RankingViewer::CreateRankDrawer(string PlayerName, string AILevel)
-{
-	if (InsertTemp == nullptr)
-	{
-		InsertTemp = new RankDrawer(PlayerName, AILevel);
-		SortRanking(InsertTemp);
-	}
-	else
-	{
-		InsertStack.push_back(new RankDrawer(PlayerName, AILevel));
 	}
 }
 
@@ -309,7 +281,14 @@ void RankingViewer::RankingRecovery(void)
 //=============================================================================
 string RankingViewer::GetLastScore(void)
 {
-	return Ranking.back()->GetAILevelStr();
+	if (Ranking.empty())
+	{
+		return "0";
+	}
+	else
+	{
+		return Ranking.back()->GetAILevelStr();
+	}
 }
 
 //=============================================================================
@@ -338,6 +317,7 @@ void RankingViewer::SortRanking(RankDrawer* Rank)
 		}
 		else
 		{
+			// 空欄がない、比較しなければならない
 			for (auto &RankVec : Ranking)
 			{
 				unsigned long long AILevelVec = RankVec->GetAILevel();
@@ -357,6 +337,8 @@ void RankingViewer::SortRanking(RankDrawer* Rank)
 			}
 		}
 	}
+
+	SetAnimation(State);
 }
 
 //=============================================================================
@@ -376,6 +358,9 @@ void RankingViewer::RankingExpand()
 {
 	LPDIRECT3DTEXTURE9 NewTexture = nullptr;
 
+	CountFrame = 0;
+	State = ViewerState::Expand;
+
 	// 順位の設定
 	InsertTemp->SetRankNum(InsertNum);
 	// レンダターゲットを変わる、テクスチャを生成
@@ -394,8 +379,6 @@ void RankingViewer::RankingExpand()
 	GameParticleManager::Instance()->SetExpandEffect(
 		DefaultPos + D3DXVECTOR3(300.0f - SCREEN_CENTER_X, InsertNum * RankInterval, 0.0f));
 
-	CountFrame = 0;
-	State = ViewerState::Expand;
 }
 
 //=============================================================================
@@ -413,7 +396,46 @@ void RankingViewer::RankingInsert(void)
 		Ranking.pop_back();
 	}
 
+	// 待機状態に戻る
 	State = ViewerState::Idle;
+	CountFrame = 0;
+}
+
+//=============================================================================
+// アニメーションを設置する
+//=============================================================================
+void RankingViewer::SetAnimation(int state)
+{
+	if (state == ViewerState::Idle)
+	{
+		// ランダムでアニメーションを選択
+		int Rnd = Math::RandomRange(0, 5);
+		if (Rnd == 0)
+			RobotActor::ChangeAnim(RobotActor::Waving);
+		else if (Rnd == 1)
+			RobotActor::ChangeAnim(RobotActor::Salute);
+		else if (Rnd == 2)
+			RobotActor::ChangeAnim(RobotActor::WaveHand);
+		else if (Rnd == 3)
+			RobotActor::ChangeAnim(RobotActor::TalkingTypeA);
+		else if (Rnd == 4)
+			RobotActor::ChangeAnim(RobotActor::FightingIdle);
+
+		// 切り替わる間隔を再計算
+		ChangeAnimInterval = Math::RandomRange(600, 900);
+		CountFrame = 0;
+	}
+	else
+	{
+		// ランダムでアニメーションを選択
+		int Rnd = Math::RandomRange(0, 3);
+		if (Rnd == 0)
+			RobotActor::ChangeAnim(RobotActor::Clapping);
+		else if (Rnd == 1)
+			RobotActor::ChangeAnim(RobotActor::FistPump);
+		else if (Rnd == 2)
+			RobotActor::ChangeAnim(RobotActor::Yeah);
+	}
 }
 
 #if _DEBUG

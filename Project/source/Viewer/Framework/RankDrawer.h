@@ -12,7 +12,6 @@
 
 using namespace std;
 
-class TextViewer;
 class TextureDrawer;
 
 //*****************************************************************************

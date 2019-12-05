@@ -18,6 +18,7 @@ namespace Packet
 		InsertRank,
 		EventLive,
 		LevelUp,
+		GetLastScore,
 	};
 
 	enum 

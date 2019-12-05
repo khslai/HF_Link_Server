@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include "../../source/Viewer/BaseViewer.h"
-#include "../Pattern/BaseState.h"
 
 using namespace std;
 
@@ -24,35 +23,41 @@ class Transition;
 //*****************************************************************************
 class UDPServer
 {
+private:
+	Background *background;
+	Transition *transition;
+	SOCKET ServerSocket;
+	int Current;									// 現在のビューア
+	bool InIdle;									// 待機状態フラグ
+	std::vector<BaseViewer*> ViewerContainer;
+	std::vector<std::vector<string>> RankStack;		// 追加予定のランク
+	std::vector<std::vector<string>> EventStack;	// 処理待ちのイベント
+	std::vector<sockaddr_in> ConnectedList;
+
+	// クライアントからのパケットを受信
+	void ReceivePacket(void);
+	// 最下位のスコアを送信
+	void SendLastScore(void);
+	// パケット処理
+	void PacketProcess(void);
+	void ChangeViewer(int NextViewer, int TransitionType, std::function<void(void)> Callback = nullptr);
+	void RankingRecovery(void);
+
+#if _DEBUG
+	void Debug(void);
+#endif
+
 public:
 	UDPServer();
 	~UDPServer();
 	void Update(void);
 	void DrawRanking(void);
 	void DrawBackground(void);
-	void ChangeViewer(int NextViewer, int TransitionType);
 	void SetIdle(bool Flag) { this->InIdle = Flag; };
-	void RankingRecovery(void);
-	void ClearEventStack(void) { EventStack.clear(); };
 
-	// マルチスレッド用	
+	// マルチスレッド用
 	static HANDLE Thread;
 	static unsigned __stdcall ThreadEntryPoint(void* This);
-
-private:
-	Background *background;
-	Transition *transition;
-	SOCKET ServerSocket;
-	int Current;
-	bool InIdle = true;
-	std::vector<BaseViewer*> ViewerContainer;
-	std::vector<std::vector<string>> RankStack;		// 追加予定のランク
-	std::vector<std::vector<string>> EventStack;	// 追加予定のランク
-	std::vector<sockaddr_in> ConnectedList;
-
-	void ReceivePacket(void);
-	void SendLastScore(void);
-	void PacketProcess(void);
 };
 
 #endif

@@ -18,7 +18,7 @@ namespace Viewer
 	{
 		Ranking,
 		EventLive,
-		//LevelUp,
+		LevelUp,
 		Max,
 	};
 

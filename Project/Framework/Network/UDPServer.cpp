@@ -13,6 +13,7 @@
 #include "../Input/input.h"
 #include "../../source/Viewer/RankingViewer.h"
 #include "../../source/Viewer/EventLiveViewer.h"
+#include "../../source/Viewer/LevelUpViewer.h"
 #include "../../source/Viewer/Background.h"
 #include "../../source/Transition/Transition.h"
 #include "../../source/Viewer/ViewerConfig.h"
@@ -29,7 +30,8 @@ HANDLE UDPServer::Thread;
 // コンストラクタ
 //=============================================================================
 UDPServer::UDPServer() :
-	Current(Viewer::State::Ranking)
+	Current(Viewer::State::Ranking),
+	InIdle(true)
 {
 	background = new Background();
 	transition = new Transition();
@@ -37,6 +39,7 @@ UDPServer::UDPServer() :
 	ViewerContainer.resize(Viewer::State::Max);
 	ViewerContainer[Viewer::State::Ranking] = new RankingViewer([&](bool Flag) {SetIdle(Flag); });
 	ViewerContainer[Viewer::State::EventLive] = new EventLiveViewer([&]() {RankingRecovery(); });
+	ViewerContainer[Viewer::State::LevelUp] = new LevelUpViewer([&]() {RankingRecovery(); });
 
 	// WinSock初期化
 	WSADATA wsaData;
@@ -52,7 +55,8 @@ UDPServer::UDPServer() :
 	ServerAddress.sin_addr.s_addr = INADDR_ANY;
 
 	// ソケットに名前を付ける
-	bind(ServerSocket, (sockaddr*)&ServerAddress, sizeof(ServerAddress));
+	// "::"がないとbindのオーバーロードのstd::bindが呼び出される
+	::bind(ServerSocket, (sockaddr*)&ServerAddress, sizeof(ServerAddress));
 }
 
 //=============================================================================
@@ -65,6 +69,8 @@ UDPServer::~UDPServer()
 	SAFE_DELETE(transition);
 	Utility::DeleteContainer(ViewerContainer);
 	ConnectedList.clear();
+	RankStack.clear();
+	EventStack.clear();
 
 	// WinSock終了処理
 	closesocket(ServerSocket);
@@ -90,62 +96,7 @@ UDPServer::~UDPServer()
 void UDPServer::Update(void)
 {
 #if _DEBUG
-	Debug::Begin("UDP Server's Clients");
-	for (auto &Client : ConnectedList)
-	{
-		Debug::Text("IP Address:%s", inet_ntoa(Client.sin_addr));
-		Debug::Text("Port:%d", Client.sin_port);
-		Debug::NewLine();
-	}
-	Debug::End();
-
-	Debug::Begin("ReceivePacket");
-	std::vector<string> Packet;
-	Packet.resize(Packet::Max);
-	Packet.at(Packet::Header) = "これはLink専用の通信パケットです";
-	if (Debug::Button("RankInsert"))
-	{
-		Packet.at(Packet::Type) = std::to_string(Packet::InsertRank);
-		Packet.at(Packet::PlayerName) = "000000";
-		Packet.at(Packet::AILevel) = "123456654321";
-		RankStack.push_back(Packet);
-	}
-	else if (Debug::Button("NewCity"))
-	{
-		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = std::to_string(EventConfig::NewCity);
-		Packet.at(Packet::FieldLevel) = std::to_string(FieldLevel::Space);
-	}
-	else if (Debug::Button("Meteor"))
-	{
-		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = std::to_string(EventConfig::CityDestroy);
-	}
-	else if (Debug::Button("AIStrike"))
-	{
-		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = std::to_string(EventConfig::BanStockUse);
-	}
-	else if (Debug::Button("UFO"))
-	{
-		Packet.at(Packet::Type) = std::to_string(Packet::EventLive);
-		Packet.at(Packet::EventNo) = std::to_string(EventConfig::AILevelDecrease);
-	}
-
-	if (!Packet.at(Packet::Type).empty())
-		EventStack.push_back(Packet);
-	Debug::End();
-
-	Debug::Begin("ViewerChange");
-	if (Debug::Button("SetTransition"))
-	{
-		LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
-		((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->CreateViewerTex(&ViewerTexture);
-		transition->SetTransition(0, ViewerTexture);
-	}
-
-	Debug::End();
-
+	Debug();
 #endif
 
 	// パケットを処理
@@ -259,11 +210,17 @@ void UDPServer::ReceivePacket(void)
 			}
 			else if (Type == Packet::EventLive || Type == Packet::LevelUp)
 			{
-				if (EventStack.empty())
+				if (InIdle && Current == Viewer::Ranking)
 				{
 					// スタックに表示予定のイベントを追加
 					EventStack.push_back(SplitedStr);
 				}
+			}
+			else if (Type == Packet::GetLastScore)
+			{
+				string Score = ((RankingViewer*)ViewerContainer.at(Viewer::Ranking))->GetLastScore();
+
+				sendto(ServerSocket, Score.c_str(), Score.length() + 1, 0, (sockaddr*)&FromAddress, sizeof(FromAddress));
 			}
 		}
 	}
@@ -282,9 +239,10 @@ void UDPServer::SendLastScore(void)
 //=============================================================================
 void UDPServer::PacketProcess(void)
 {
-	// 処理待ちのパケットがあれば
+	// 待機状態であれば
 	if (InIdle && Current == Viewer::Ranking)
 	{
+		// 処理待ちのパケットがあれば
 		if (!RankStack.empty())
 		{
 			// 先にランキング追加の事件を処理
@@ -297,9 +255,10 @@ void UDPServer::PacketProcess(void)
 					ViewerContainer.at(Viewer::Ranking)->ReceivePacket(Type, Str);
 				}
 				Str.clear();
-				break;
 			}
+			RankStack.clear();
 		}
+		// イベントパケット処理
 		else
 		{
 			if (!EventStack.empty())
@@ -307,38 +266,47 @@ void UDPServer::PacketProcess(void)
 				for (auto &Str : EventStack)
 				{
 					int Type = stoi(Str.at(Packet::Type));
+
+					// イベント中継
 					if (Type == Packet::EventLive)
 					{
 						GameParticleManager::Instance()->SetGlassShards();
 						TaskManager::Instance()->CreateDelayedTask(60, [=]()
 						{
-							ChangeViewer(Viewer::EventLive, 0);
-							ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
+							ChangeViewer(Viewer::EventLive, 0, [=]()
+							{
+								ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
+							});
 						});
 						Str.clear();
 						EventStack.clear();
 						break;
 					}
+					// フィールドレベルアップ
 					else if (Type == Packet::LevelUp)
 					{
-						//ViewerContainer.at(Viewer::)->ReceivePacket(Type, Str);
+						GameParticleManager::Instance()->SetGlassShards();
+						TaskManager::Instance()->CreateDelayedTask(60, [=]()
+						{
+							ChangeViewer(Viewer::LevelUp, 0, [=]()
+							{
+								ViewerContainer.at(Viewer::LevelUp)->ReceivePacket(Type, Str);
+							});
+						});
+						Str.clear();
+						EventStack.clear();
+						break;
 					}
 				}
 			}
 		}
 	}
-
-	// 空きパケットを削除
-	RankStack.erase(std::remove_if(std::begin(RankStack), std::end(RankStack), [](vector<string> Packet)
-	{
-		return Packet.empty();
-	}), std::end(RankStack));
 }
 
 //=============================================================================
 // ビューアを変える
 //=============================================================================
-void UDPServer::ChangeViewer(int NextViewer, int TransitionType)
+void UDPServer::ChangeViewer(int NextViewer, int TransitionType, std::function<void(void)> Callback)
 {
 	LPDIRECT3DTEXTURE9 ViewerTexture = nullptr;
 
@@ -349,9 +317,14 @@ void UDPServer::ChangeViewer(int NextViewer, int TransitionType)
 	TaskManager::Instance()->CreateDelayedTask(60, [=]()
 	{
 		Current = NextViewer;
+		if (Callback != nullptr)
+			Callback();
 	});
 }
 
+//=============================================================================
+// ランキングの復帰
+//=============================================================================
 void UDPServer::RankingRecovery(void)
 {
 	background->SetBGTransition(Viewer::State::Ranking);
@@ -362,3 +335,108 @@ void UDPServer::RankingRecovery(void)
 		((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->RankingRecovery();
 	});
 }
+
+#if _DEBUG
+void UDPServer::Debug(void)
+{
+	Debug::Begin("UDP Server's Clients");
+	for (auto &Client : ConnectedList)
+	{
+		Debug::Text("IP Address:%s", inet_ntoa(Client.sin_addr));
+		Debug::Text("Port:%d", Client.sin_port);
+		Debug::NewLine();
+	}
+	Debug::End();
+
+	Debug::Begin("EventPacket");
+	std::vector<string> EventPacketTemp;
+	EventPacketTemp.resize(Packet::Max);
+	EventPacketTemp.at(Packet::Header) = "これはLink専用の通信パケットです";
+	if (Debug::Button("NewCity_City"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::NewCity);
+		EventPacketTemp.at(Packet::FieldLevel) = std::to_string(FieldLevel::City);
+	}
+	else if (Debug::Button("NewCity_World"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::NewCity);
+		EventPacketTemp.at(Packet::FieldLevel) = std::to_string(FieldLevel::World);
+	}
+	else if (Debug::Button("NewCity_Space"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::NewCity);
+		EventPacketTemp.at(Packet::FieldLevel) = std::to_string(FieldLevel::Space);
+	}
+	else if (Debug::Button("Meteor"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::CityDestroy);
+	}
+	else if (Debug::Button("AIStrike"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::BanStockUse);
+	}
+	else if (Debug::Button("UFO"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::AILevelDecrease);
+	}
+	else if (Debug::Button("LevelUp"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::LevelUp);
+	}
+
+	if (!EventPacketTemp.at(Packet::Type).empty())
+		EventStack.push_back(EventPacketTemp);
+	Debug::End();
+
+	Debug::Begin("RankPacket");
+	std::vector<string> RankPacketTemp;
+	RankPacketTemp.resize(Packet::Max);
+	RankPacketTemp.at(Packet::Header) = "これはLink専用の通信パケットです";
+	RankPacketTemp.at(Packet::Type) = std::to_string(Packet::InsertRank);
+	if (Debug::Button("123"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "123";
+	}
+	else if (Debug::Button("000000"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "000000";
+	}
+	else if (Debug::Button("001230"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "001230";
+	}
+	else if (Debug::Button("456789"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "456789";
+	}
+	else if (Debug::Button("123456789101"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "123456789101";
+	}
+	else if (Debug::Button("999999999999"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "999999999999";
+	}
+	else if (Debug::Button("2131874613284489"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "2131874613284489";
+	}
+
+	if (!RankPacketTemp.at(Packet::PlayerName).empty())
+		RankStack.push_back(RankPacketTemp);
+	Debug::End();
+}
+#endif
