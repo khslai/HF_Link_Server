@@ -10,6 +10,7 @@
 #include "../Camera/FieldCamera.h"
 #include "../Effect/GameParticleManager.h"
 #include "../Actor/RobotActor.h"
+#include "../Booth/BoothController.h"
 
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Tool/ProfilerCPU.h"
@@ -36,6 +37,9 @@ void GameScene::Init()
 	fieldCamera->SetTargetPos(Vector3::Zero);
 	fieldCamera->ChangeMode(FieldCamera::Mode::FrontSide);
 
+	// LEDテープを制御するコントローラー
+	BoothController::Instance()->Init();
+
 	// パーティクル初期化
 	ParticleManager = GameParticleManager::Instance();
 	ParticleManager->Init();
@@ -61,6 +65,7 @@ void GameScene::Uninit()
 
 	// パーティクル削除
 	ParticleManager->Uninit();
+	BoothController::Instance()->Uninit();
 }
 
 /**************************************

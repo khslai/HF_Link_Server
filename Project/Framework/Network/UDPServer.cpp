@@ -19,6 +19,7 @@
 #include "../../source/Viewer/ViewerConfig.h"
 #include "../../source/Effect/GameParticleManager.h"
 #include "../../source/EventConfig.h"
+#include "../../source/Booth/BoothController.h"
 
 
 //*****************************************************************************
@@ -199,7 +200,7 @@ void UDPServer::ReceivePacket(void)
 		String::Split(SplitedStr, Message, ',');
 
 		// パケットのヘッダーを確認
-		if (SplitedStr.at(Packet::Header) == "これはLink専用の通信パケットです")
+		if (SplitedStr.at(Packet::Header) == PacketHeader)
 		{
 			int Type = stoi(SplitedStr.at(Packet::Type));
 
@@ -257,6 +258,9 @@ void UDPServer::PacketProcess(void)
 				Str.clear();
 			}
 			RankStack.clear();
+
+			// LEDテープを制御
+			BoothController::Instance()->BlinkLED(BlinkType::InsertRank);
 		}
 		// イベントパケット処理
 		else
@@ -270,7 +274,10 @@ void UDPServer::PacketProcess(void)
 					// イベント中継
 					if (Type == Packet::EventLive)
 					{
+						// エフェクト
 						GameParticleManager::Instance()->SetGlassShards();
+
+						// シーン遷移
 						TaskManager::Instance()->CreateDelayedTask(60, [=]()
 						{
 							ChangeViewer(Viewer::EventLive, 0, [=]()
@@ -278,6 +285,8 @@ void UDPServer::PacketProcess(void)
 								ViewerContainer.at(Viewer::EventLive)->ReceivePacket(Type, Str);
 							});
 						});
+
+						// クリア
 						Str.clear();
 						EventStack.clear();
 						break;
@@ -285,7 +294,13 @@ void UDPServer::PacketProcess(void)
 					// フィールドレベルアップ
 					else if (Type == Packet::LevelUp)
 					{
+						// LEDテープを制御
+						BoothController::Instance()->BlinkLED(BlinkType::GradeUp);
+
+						// エフェクト
 						GameParticleManager::Instance()->SetGlassShards();
+
+						// シーン遷移
 						TaskManager::Instance()->CreateDelayedTask(60, [=]()
 						{
 							ChangeViewer(Viewer::LevelUp, 0, [=]()
@@ -293,6 +308,8 @@ void UDPServer::PacketProcess(void)
 								ViewerContainer.at(Viewer::LevelUp)->ReceivePacket(Type, Str);
 							});
 						});
+
+						// クリア
 						Str.clear();
 						EventStack.clear();
 						break;

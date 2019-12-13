@@ -33,7 +33,7 @@ RankDrawer::RankDrawer(string Name, string AILevelStr) :
 	Rank->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Ranking.png");
 
 	PlayerName = new TextureDrawer(D3DXVECTOR2(1024.0f, 1024.0f), 6, 6);
-	PlayerName->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Alphabet2.png");
+	PlayerName->LoadTexture("data/TEXTURE/Viewer/RankingViewer/Alphabet.png");
 	PlayerName->SetSize(D3DXVECTOR2(100.0f, 100.0f));
 
 	AILevel = new TextureDrawer(D3DXVECTOR2(512.0f, 384.0f), 4, 3);

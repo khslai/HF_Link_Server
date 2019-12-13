@@ -6,7 +6,7 @@
 //=============================================================================
 #include "../../main.h"
 #include "UDPClient.h"
-#include "UDPServer.h"
+#include "PacketConfig.h"
 
 //*****************************************************************************
 // スタティック変数宣言
@@ -56,16 +56,8 @@ void UDPClient::SendPacket()
 	AddressLength = sizeof(ServerAddress);
 
 	// 入力メッセージ処理
-	Message = Packet.Header + "," + Packet.PlayerName + "," + std::to_string(Packet.AILevel);
+	//Message = PacketHeader + "," + Packet.PlayerName + "," + std::to_string(Packet.AILevel);
 
 	// 送信
 	sendto(ClientSocket, Message.c_str(), Message.length() + 1, 0, (sockaddr*)&ServerAddress, sizeof(ServerAddress));
-}
-
-//=============================================================================
-// パケット送信
-//=============================================================================
-void UDPClient::ReceivePacketConfig(const PacketConfig Packet)
-{
-	this->Packet = Packet;
 }

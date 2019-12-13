@@ -281,7 +281,7 @@ void RankingViewer::RankingRecovery(void)
 //=============================================================================
 string RankingViewer::GetLastScore(void)
 {
-	if (Ranking.empty())
+	if (Ranking.size() < RankingMaxNum)
 	{
 		return "0";
 	}

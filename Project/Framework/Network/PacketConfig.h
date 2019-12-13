@@ -13,15 +13,15 @@ using namespace std;
 
 namespace Packet
 {
-	enum 
+	enum
 	{
-		InsertRank,
-		EventLive,
-		LevelUp,
-		GetLastScore,
+		InsertRank,		// ランキング追加
+		EventLive,		// イベント中継
+		LevelUp,		// レベルアップ
+		GetLastScore,	// 最下位のスコアを取得
 	};
 
-	enum 
+	enum
 	{
 		Header = 0,
 		Type = 1,
@@ -37,16 +37,8 @@ namespace Packet
 
 // 使用するポート番号
 const int ServerPort = 8080;
-//*****************************************************************************
-// クラス定義
-//*****************************************************************************
-class PacketConfig
-{
-public:
-	string Header = "これはLink専用の通信パケットです";	// パケットの先頭文字列
-	int PacketType = 0;									// 起こる事件を種類
-	string PlayerName = "Potato";						// プレイヤーの名前
-	int AILevel = 0;									// AIレベル
-};
+
+// パケットの先頭文字列
+const string PacketHeader = "これはLink専用の通信パケットです";	
 
 #endif

@@ -7,7 +7,6 @@
 #ifndef _UDPClient_H_
 #define _UDPClient_H_
 
-#include "PacketConfig.h"
 
 //*****************************************************************************
 // ƒNƒ‰ƒX’è‹`
@@ -17,13 +16,11 @@ class UDPClient
 private:
 	SOCKET ClientSocket;
 	sockaddr_in ServerAddress;
-	PacketConfig Packet;
 
 public:
 	UDPClient();
 	~UDPClient();
 	void SendPacket();
-	void ReceivePacketConfig(PacketConfig Packet);
 };
 
 #endif

@@ -223,9 +223,8 @@
     <ClCompile Include="Library\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Library\json11\json11.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="source\Actor\CityActor.cpp" />
-    <ClCompile Include="source\Actor\PlaceActor.cpp" />
     <ClCompile Include="source\Actor\RobotActor.cpp" />
+    <ClCompile Include="source\Booth\BoothController.cpp" />
     <ClCompile Include="source\Camera\FieldCamera.cpp" />
     <ClCompile Include="source\Camera\State\FieldCameraFront.cpp" />
     <ClCompile Include="source\Effect\GameParticleManager.cpp" />
@@ -354,10 +353,8 @@
     <ClInclude Include="Library\picojson\picojson.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="source\Actor\CityActor.h" />
-    <ClInclude Include="source\Actor\PlaceActor.h" />
-    <ClInclude Include="source\Actor\PlaceConfig.h" />
     <ClInclude Include="source\Actor\RobotActor.h" />
+    <ClInclude Include="source\Booth\BoothController.h" />
     <ClInclude Include="source\Camera\FieldCamera.h" />
     <ClInclude Include="source\Camera\State\FieldCameraFront.h" />
     <ClInclude Include="source\Effect\GameParticleManager.h" />

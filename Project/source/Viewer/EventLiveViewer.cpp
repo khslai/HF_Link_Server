@@ -10,6 +10,7 @@
 #include "../Effect/GameParticleManager.h"
 #include "../EventConfig.h"
 #include "../Viewer/ViewerConfig.h"
+#include "../Booth/BoothController.h"
 
 #include "../../Framework/Network/PacketConfig.h"
 #include "../../Framework/String/String.h"
@@ -174,6 +175,9 @@ void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<std::strin
 
 	if (EventNo == EventConfig::NewCity)
 	{
+		// LEDテープを制御
+		BoothController::Instance()->BlinkLED(BlinkType::PlusEventLED);
+
 		int FieldLevel = std::stoi(SpliteStr.at(Packet::FieldLevel));
 		TelopBGIndex = PlusEvent;
 		if (FieldLevel == FieldLevel::City)
@@ -197,18 +201,27 @@ void EventLiveViewer::ReceivePacket(int PacketType, const std::vector<std::strin
 	}
 	else if (EventNo == EventConfig::CityDestroy)
 	{
+		// LEDテープを制御
+		BoothController::Instance()->BlinkLED(BlinkType::MinusEventLED);
+
 		TelopBGIndex = MinusEvent;
 		MessageIndex = Meteor;
 		AnimID = RobotActor::Rush;
 	}
 	else if (EventNo == EventConfig::AILevelDecrease)
 	{
+		// LEDテープを制御
+		BoothController::Instance()->BlinkLED(BlinkType::MinusEventLED);
+
 		TelopBGIndex = MinusEvent;
 		MessageIndex = UFO;
 		AnimID = RobotActor::TalkingTypeB;
 	}
 	else if (EventNo == EventConfig::BanStockUse)
 	{
+		// LEDテープを制御
+		BoothController::Instance()->BlinkLED(BlinkType::MinusEventLED);
+
 		TelopBGIndex = MinusEvent;
 		MessageIndex = AIStrike;
 		AnimID = RobotActor::Pain;

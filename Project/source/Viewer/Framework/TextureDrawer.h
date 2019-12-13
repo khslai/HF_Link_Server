@@ -10,6 +10,25 @@
 #include <functional>
 #include "BaseTextureDrawer.h"
 
+enum ExpandType
+{
+	LeftToRight,
+	RightToLeft,
+	ExpandUpToDown,
+	ExpandDownToUp,
+	ToUpDown,
+	ToLeftRight,
+};
+
+enum CloseType
+{
+	FromUpDown,
+	FromLeftRight,
+	CloseUpToDown,
+	CloseDownToUp,
+};
+
+
 //*****************************************************************************
 // クラス定義
 //*****************************************************************************
@@ -42,10 +61,14 @@ private:
 	void SetTexture(void);
 	void Expand_LeftToRight(float Time);
 	void Expand_RightToLeft(float Time);
+	void Expand_UpToDown(float Time);
+	void Expand_DownToUp(float Time);
 	void Expand_ToUpDown(float Time);
 	void Expand_ToLeftRight(float Time);
-	void Close_UpDown(float Time);
-	void Close_LeftRight(float Time);
+	void Close_FromUpDown(float Time);
+	void Close_FromLeftRight(float Time);
+	void Close_UpToDown(float Time);
+	void Close_DownToUp(float Time);
 public:
 	// 分割ないテクスチャ用
 	TextureDrawer(D3DXVECTOR2 TextureSize, bool Visible = true);		
