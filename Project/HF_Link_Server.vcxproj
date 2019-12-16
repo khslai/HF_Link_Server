@@ -202,6 +202,10 @@
     <ClCompile Include="Framework\Resource\PolygonResource.cpp" />
     <ClCompile Include="Framework\Resource\ResourceManager.cpp" />
     <ClCompile Include="Framework\Serial\SerialWrapper.cpp" />
+    <ClCompile Include="Framework\Sound\BackgroundMusic.cpp" />
+    <ClCompile Include="Framework\Sound\MusicClip.cpp" />
+    <ClCompile Include="Framework\Sound\sound.cpp" />
+    <ClCompile Include="Framework\Sound\SoundEffect.cpp" />
     <ClCompile Include="Framework\String\String.cpp" />
     <ClCompile Include="Framework\Task\DelayedTask.cpp" />
     <ClCompile Include="Framework\Task\PeriodicTask.cpp" />
@@ -236,6 +240,7 @@
     <ClCompile Include="source\GameMain.cpp" />
     <ClCompile Include="source\Scene\GameScene.cpp" />
     <ClCompile Include="source\Scene\TextureTestScene.cpp" />
+    <ClCompile Include="source\Sound\SoundConfig.cpp" />
     <ClCompile Include="source\Transition\Transition.cpp" />
     <ClCompile Include="source\Viewer\Background.cpp" />
     <ClCompile Include="source\Viewer\EventLiveViewer.cpp" />
@@ -326,6 +331,10 @@
     <ClInclude Include="Framework\Resource\PolygonResource.h" />
     <ClInclude Include="Framework\Resource\ResourceManager.h" />
     <ClInclude Include="Framework\Serial\SerialWrapper.h" />
+    <ClInclude Include="Framework\Sound\BackgroundMusic.h" />
+    <ClInclude Include="Framework\Sound\MusicClip.h" />
+    <ClInclude Include="Framework\Sound\sound.h" />
+    <ClInclude Include="Framework\Sound\SoundEffect.h" />
     <ClInclude Include="Framework\String\String.h" />
     <ClInclude Include="Framework\Task\DelayedTask.h" />
     <ClInclude Include="Framework\Task\PeriodicTask.h" />
@@ -368,6 +377,7 @@
     <ClInclude Include="source\GameMain.h" />
     <ClInclude Include="source\Scene\GameScene.h" />
     <ClInclude Include="source\Scene\TextureTestScene.h" />
+    <ClInclude Include="source\Sound\SoundConfig.h" />
     <ClInclude Include="source\Transition\Transition.h" />
     <ClInclude Include="source\Viewer\Background.h" />
     <ClInclude Include="source\Viewer\BaseViewer.h" />

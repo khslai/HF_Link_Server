@@ -7,6 +7,8 @@
 #include "GameParticleManager.h"
 #include "../../Framework/PostEffect/CrossFilterController.h"
 #include "../../Framework/Tool/DebugWindow.h"
+#include "../../Framework/Sound/SoundEffect.h"
+#include "../Sound/SoundConfig.h"
 
 #include "Game/ExpandEffect.h"
 #include "Game/BlueDebris.h"
@@ -65,6 +67,8 @@ void GameParticleManager::Draw2DParticle()
 void GameParticleManager::SetExpandEffect(D3DXVECTOR3 Pos, std::function<void(void)> callback)
 {
 	controllers[GameParticle::ExpandEffect]->SetEmitter(Pos, nullptr);
+
+	SE::Play(SoundConfig::RankingInsert);
 }
 
 /**************************************
@@ -82,6 +86,8 @@ void GameParticleManager::SetGlassShards(void)
 {
 	controllers[GameParticle::GlassShards]->SetEmitter(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), nullptr);
 	controllers[GameParticle::GlassBroken]->SetEmitter(D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), nullptr);
+
+	SE::Play(SoundConfig::Transition);
 }
 
 /**************************************

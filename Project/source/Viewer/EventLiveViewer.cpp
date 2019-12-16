@@ -11,7 +11,9 @@
 #include "../EventConfig.h"
 #include "../Viewer/ViewerConfig.h"
 #include "../Booth/BoothController.h"
+#include "../Sound/SoundConfig.h"
 
+#include "../../Framework/Sound/SoundEffect.h"
 #include "../../Framework/Network/PacketConfig.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
@@ -98,6 +100,11 @@ void EventLiveViewer::Update(void)
 	{
 		if (!ActionFlag)
 		{
+			if (TelopBGIndex == PlusEvent)
+				SE::Play(SoundConfig::PlusEvent);
+			else if (TelopBGIndex == MinusEvent)
+				SE::Play(SoundConfig::MinusEvent);
+
 			EventMessage->Move(120.0f, D3DXVECTOR3(SCREEN_CENTER_X, SCREEN_CENTER_Y, 0.0f), EaseType::OutQuart, [&]()
 			{
 				RobotActor::ChangeAnim(AnimID);

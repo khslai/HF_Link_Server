@@ -10,7 +10,9 @@
 #include "../Effect/GameParticleManager.h"
 #include "../Viewer/ViewerConfig.h"
 #include "../Actor/RobotActor.h"
+#include "../Sound/SoundConfig.h"
 
+#include "../../Framework/Sound/SoundEffect.h"
 #include "../../Framework/Network/PacketConfig.h"
 #include "../../Framework/String/String.h"
 #include "../../Framework/Tool/DebugWindow.h"
@@ -95,20 +97,9 @@ void LevelUpViewer::ReceivePacket(int PacketType, const std::vector<std::string>
 	static int Num = 0;
 
 	// 初期化
+	SE::Play(SoundConfig::Clapping);
 	Celebration->SetAlpha(1.0f);
 	Celebration->SetVisible(false);
-
-	// 展開
-	TaskManager::Instance()->CreateDelayedTask(200, [&]()
-	{
-		Celebration->Expand(60.0f, ExpandType::LeftToRight, EaseType::InQuart);
-		RobotActor::ChangeAnim(RobotActor::Cheering);
-	});
-	// フェイドアウト
-	TaskManager::Instance()->CreateDelayedTask(360, [&]()
-	{
-		Celebration->Fade(60.0f, 0.0f);
-	});
 
 	for (auto &text : Text)
 	{
@@ -138,10 +129,26 @@ void LevelUpViewer::ReceivePacket(int PacketType, const std::vector<std::string>
 		Num++;
 	}
 
+	// 展開
+	TaskManager::Instance()->CreateDelayedTask(200, [&]()
+	{
+		Celebration->Expand(60.0f, ExpandType::LeftToRight, EaseType::InQuart);
+		RobotActor::ChangeAnim(RobotActor::Cheering);
+
+		SE::Play(SoundConfig::FieldLevelUp);
+	});
+	// フェイドアウト
+	TaskManager::Instance()->CreateDelayedTask(360, [&]()
+	{
+		Celebration->Fade(60.0f, 0.0f);
+	});
+
 	// ランキング復帰
 	TaskManager::Instance()->CreateDelayedTask(480, [&]()
 	{
 		Num = 0;
+		SE::Stop(SoundConfig::FieldLevelUp);
+		SE::Stop(SoundConfig::Clapping);
 		Recovery();
 	});
 }

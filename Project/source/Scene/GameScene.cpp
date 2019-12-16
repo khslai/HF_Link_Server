@@ -11,6 +11,7 @@
 #include "../Effect/GameParticleManager.h"
 #include "../Actor/RobotActor.h"
 #include "../Booth/BoothController.h"
+#include "../Sound/SoundConfig.h"
 
 #include "../../Framework/Tool/DebugWindow.h"
 #include "../../Framework/Tool/ProfilerCPU.h"
@@ -19,6 +20,7 @@
 #include "../../Framework/Network/UDPServer.h"
 #include "../../Framework/Effect/SpriteEffect.h"
 #include "../../Framework/Input/input.h"
+#include "../../Framework/Sound/SoundEffect.h"
 
 /**************************************
 staticメンバ
@@ -30,6 +32,12 @@ staticメンバ
 ***************************************/
 void GameScene::Init()
 {
+	//サウンド読み込み
+	for (int i = 0; i < SoundConfig::SEMax; i++)
+	{
+		SE::Load(SoundConfig::SEPath[i], SoundConfig::SEID(i));
+	}
+
 	// カメラ作成
 	fieldCamera = new FieldCamera();
 	Camera::SetMainCamera(fieldCamera);

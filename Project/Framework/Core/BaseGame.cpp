@@ -13,6 +13,8 @@
 #include "../Task/TaskManager.h"
 #include "../Transition/TransitionController.h"
 #include "../Effect/RendererEffect.h"
+#include "../Sound/sound.h"
+#include "../Sound/SoundEffect.h"
 
 Tween* Tween::mInstance = NULL;
 /**************************************
@@ -32,6 +34,7 @@ BaseGame::BaseGame(HINSTANCE hInstance, HWND hWnd)
 
 	//äeéÌèâä˙âª
 	Input::Init(hInstance, hWnd);
+	Sound::Init(hWnd);
 	Light::Init();
 #if _DEBUG
 	Debug::Init(hWnd, pDevice);
@@ -53,10 +56,12 @@ BaseGame::~BaseGame()
 	SAFE_DELETE(sceneManager);
 	SAFE_DELETE(Tween::mInstance);
 
+	Input::Uninit();
+	SE::Clear();
+	Sound::Uninit();
 #if _DEBUG
 	Debug::Uninit();
 #endif
-	Input::Uninit();
 }
 
 /**************************************
