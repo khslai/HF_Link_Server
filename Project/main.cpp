@@ -99,7 +99,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		return -1;
 	}
 #else
-	if (FAILED(Init(hInstance, hWnd, true)))
+	if (FAILED(Init(hInstance, hWnd, false)))
 	{
 		return -1;
 	}
