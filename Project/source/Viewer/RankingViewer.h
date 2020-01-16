@@ -26,6 +26,7 @@ private:
 	int ChangeAnimInterval;
 	int InsertNum;
 	int State;								// 状態
+	bool EventHappened;						// イベントが発生したフラグ
 	TextureDrawer *RankingTitle;			// タイトル
 	TextureDrawer *ExpandTexture;			// ランク追加時に演出用のテクスチャ
 	RankDrawer* InsertTemp;					// 追加予定のランキングビューア
@@ -48,6 +49,7 @@ public:
 	void CreateViewerTex(LPDIRECT3DTEXTURE9* TexturePtr);
 	void RankingRecovery(void);
 	string GetLastScore(void);
+	void SetEventHappened(bool Flag) { this->EventHappened = Flag; };
 
 #if _DEBUG
 	void ClearRanking(void);

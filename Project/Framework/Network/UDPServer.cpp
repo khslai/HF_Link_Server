@@ -274,6 +274,9 @@ void UDPServer::PacketProcess(void)
 					// イベント中継
 					if (Type == Packet::EventLive)
 					{
+						InIdle = false;
+						((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->SetEventHappened(true);
+
 						// エフェクト
 						GameParticleManager::Instance()->SetGlassShards();
 
@@ -294,6 +297,9 @@ void UDPServer::PacketProcess(void)
 					// フィールドレベルアップ
 					else if (Type == Packet::LevelUp)
 					{
+						InIdle = false;
+						((RankingViewer*)ViewerContainer.at(Viewer::State::Ranking))->SetEventHappened(true);
+
 						// LEDテープを制御
 						BoothController::Instance()->BlinkLED(BlinkType::GradeUp);
 
@@ -317,6 +323,12 @@ void UDPServer::PacketProcess(void)
 				}
 			}
 		}
+	}
+
+	// 待機状態でなければ、イベント割り込みが発生しない
+	if (!InIdle)
+	{
+		EventStack.clear();
 	}
 }
 
@@ -367,8 +379,11 @@ void UDPServer::Debug(void)
 
 	Debug::Begin("EventPacket");
 	std::vector<string> EventPacketTemp;
+	std::vector<string> EventPacketTemp2;
 	EventPacketTemp.resize(Packet::Max);
+	EventPacketTemp2.resize(Packet::Max);
 	EventPacketTemp.at(Packet::Header) = "これはLink専用の通信パケットです";
+	EventPacketTemp2.at(Packet::Header) = "これはLink専用の通信パケットです";
 	if (Debug::Button("NewCity_City"))
 	{
 		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
@@ -406,16 +421,38 @@ void UDPServer::Debug(void)
 	{
 		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::LevelUp);
 	}
+	else if (Debug::Button("Double Packet(Event)"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp.at(Packet::EventNo) = std::to_string(EventConfig::AILevelDecrease);
+		EventPacketTemp2.at(Packet::Type) = std::to_string(Packet::EventLive);
+		EventPacketTemp2.at(Packet::EventNo) = std::to_string(EventConfig::BanStockUse);
+	}
+	else if (Debug::Button("Double Packet(Level)"))
+	{
+		EventPacketTemp.at(Packet::Type) = std::to_string(Packet::LevelUp);
+		EventPacketTemp2.at(Packet::Type) = std::to_string(Packet::LevelUp);
+	}
 
 	if (!EventPacketTemp.at(Packet::Type).empty())
+	{
 		EventStack.push_back(EventPacketTemp);
+		if (!EventPacketTemp2.at(Packet::Type).empty())
+		{
+			EventStack.push_back(EventPacketTemp2);
+		}
+	}
 	Debug::End();
 
 	Debug::Begin("RankPacket");
 	std::vector<string> RankPacketTemp;
+	std::vector<string> RankPacketTemp2;
 	RankPacketTemp.resize(Packet::Max);
+	RankPacketTemp2.resize(Packet::Max);
 	RankPacketTemp.at(Packet::Header) = "これはLink専用の通信パケットです";
+	RankPacketTemp2.at(Packet::Header) = "これはLink専用の通信パケットです";
 	RankPacketTemp.at(Packet::Type) = std::to_string(Packet::InsertRank);
+	RankPacketTemp2.at(Packet::Type) = std::to_string(Packet::InsertRank);
 	if (Debug::Button("123"))
 	{
 		RankPacketTemp.at(Packet::PlayerName) = "000102";
@@ -451,9 +488,22 @@ void UDPServer::Debug(void)
 		RankPacketTemp.at(Packet::PlayerName) = "000102";
 		RankPacketTemp.at(Packet::AILevel) = "2131874613284489";
 	}
+	else if (Debug::Button("Double Packet"))
+	{
+		RankPacketTemp.at(Packet::PlayerName) = "000102";
+		RankPacketTemp.at(Packet::AILevel) = "2131874613284489";
+		RankPacketTemp2.at(Packet::PlayerName) = "020100";
+		RankPacketTemp2.at(Packet::AILevel) = "123456789";
+	}
 
 	if (!RankPacketTemp.at(Packet::PlayerName).empty())
+	{
 		RankStack.push_back(RankPacketTemp);
+		if (!RankPacketTemp2.at(Packet::PlayerName).empty())
+		{
+			RankStack.push_back(RankPacketTemp2);
+		}
+	}
 	Debug::End();
 }
 #endif

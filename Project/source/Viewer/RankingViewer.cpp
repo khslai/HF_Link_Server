@@ -42,7 +42,8 @@ enum ViewerState
 //=============================================================================
 RankingViewer::RankingViewer(std::function<void(bool)> setIdle) :
 	InsertTemp(nullptr),
-	ChangeAnimInterval(Math::RandomRange(600, 900))
+	ChangeAnimInterval(Math::RandomRange(600, 900)),
+	EventHappened(false)
 {
 	RankingTitle = new TextureDrawer(D3DXVECTOR2(966.0f, 208.0f));
 	RankingTitle->LoadTexture("data/TEXTURE/Viewer/RankingViewer/RankingTitle.png");
@@ -51,6 +52,12 @@ RankingViewer::RankingViewer(std::function<void(bool)> setIdle) :
 	ExpandTexture = new TextureDrawer(D3DXVECTOR2(SCREEN_WIDTH, 120.0f), false);
 
 	SetIdle = setIdle;
+
+	// ダミーデータ
+	Ranking.push_back(new RankDrawer("191018", "17849999"));
+	Ranking.push_back(new RankDrawer("190113", "5739999"));
+	Ranking.push_back(new RankDrawer("100813", "359999"));
+	Ranking.push_back(new RankDrawer("120014", "548"));
 }
 
 //=============================================================================
@@ -95,8 +102,11 @@ void RankingViewer::Update(void)
 				SetAnimation(State);
 			}
 
-			// ランキングビューアは待機状態
-			SetIdle(true);
+			if (!EventHappened)
+			{
+				// ランキングビューアは待機状態
+				SetIdle(true);
+			}
 		}
 		else
 		{
@@ -161,6 +171,8 @@ void RankingViewer::Update(void)
 			{
 				State = ViewerState::Idle;
 				CountFrame = 0;
+				SetIdle(true);
+				EventHappened = false;
 			}
 		}
 	}
